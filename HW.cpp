@@ -43,7 +43,7 @@ void task1_3() {
         cout << "x = " << -c / b << endl;
     }
     else {
-        cout << "b = 0" << endl;
+        cout << "b can't be zero, no answer" << endl;
     }
 }
 
@@ -63,8 +63,8 @@ void task1_4() {
 
     double D = b * b - 4 * a * c;
 
-    if (D < 0) {
-        cout << "D < 0, no answer" << endl;
+    if (D < 0 || a == 0) {
+        cout << "D < 0 or a = 0, no answer" << endl;
     }
     else {
         cout << "x1 = " << (-b + sqrt(D))/(2*a) << endl;
