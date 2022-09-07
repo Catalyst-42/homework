@@ -37,11 +37,11 @@ void task1_3() {
     // bx = -c
     // x = -c/b
 
-    if (b != 0) {
-        cout << "x = " << -c / b << endl;
+    if (b == 0) { 
+        cout << "no answer (division by zero)";
     }
-    else {
-        cout << "b can't be zero, no answer" << endl;
+    else { 
+        cout << "x = " << -c/b; 
     }
 }
 
@@ -66,18 +66,18 @@ void task1_4() {
         // x = -c/b
 
         if (b == 0) { 
-            cout << "b can't be 0, no answer";
+            cout << "no answer (division by zero)";
         }
         else { 
             cout << "x = " << -c/b; 
         }
     }
     else if (D < 0) {
-        cout << "D can't be less than 0, no answer" << endl;
+        cout << "no answer (negative D)" << endl;
     } 
     else {
-        cout << "x1 = " << (-b + sqrt(D))/(2*a) << endl;
-        cout << "x2 = " << (-b - sqrt(D))/(2*a) << endl;
+        cout << "x1 = " << (-b + sqrt(D)) / (2*a) << endl;
+        cout << "x2 = " << (-b - sqrt(D)) / (2*a) << endl;
     }
 }
 
