@@ -68,7 +68,7 @@ void task1_4() {
     }
     else {
         cout << "x1 = " << (-b + sqrt(D))/2*a << endl;
-        cout << "x2 = " << (-b + sqrt(D))/2*a << endl;
+        cout << "x2 = " << (-b - sqrt(D))/2*a << endl;
     }
 }
 
