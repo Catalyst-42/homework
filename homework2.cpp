@@ -80,6 +80,10 @@ void t4() {
     cout << "enter N: ";
     cin >> N;
 
+    if (N < 1) {
+        N = 1;
+    }
+
     for (int n=N; n<N+10; n++) {
         cout << n << " ";
     }
