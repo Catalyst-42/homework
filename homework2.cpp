@@ -9,12 +9,24 @@ void t1() {
     // S = π(R2+(R+r)l+r2)
 
     double h = 0;
-    double l = 0;
     double r = 0;
     double R = 0;
 
-    cout << "Enter the parameters of the cone (h,l,r,R): ";
-    cin >> h >> l >> r >> R;
+    cout << "Enter the parameters of the cone (h,r,R): ";
+    cin >> h >> r >> R;
+
+    double l = sqrt(h*h + (R-r)*(R-r));
+    
+    if (h<0 || r<0 || R<0) { cout << "Parameters cannot be negative!" << endl; return; }
+
+    if (r == R) { 
+        if (r == 0) { 
+            cout << "You have entered the parameters for the line!" << endl; 
+        }
+        else {
+            cout << "You have entered the parameters for the cylinder!" << endl; 
+        }
+    }
 
     cout << "V = " << (double) 1/3 * M_PI*h*(R*R + R*r + r*r) << endl;
     cout << "S = " << (double) M_PI*(R*R + (R+r)*l + r*r) << endl;
@@ -63,14 +75,14 @@ void t3() {
     cout << "Enter the parameters (x,y,b): ";
     cin >> x >> y >> b;
 
-    if (b-y <= 0) {
-        cout << "z can't be found, (ln(x) from x <= 0)" << endl;
+    if (b - y <= 0) {
+        cout << "z can't be found, (ln(a) from a <= 0)" << endl;
     } 
     else if (b - x < 0) {
         cout << "z can't be found, (sqrt() from negative number)" << endl;
     }
     else {
-        cout << "z = " << log(b - y) * sqrt(b - x);
+        cout << "z = " << log(b - y) * sqrt(b - x) << endl;
     }
 }
 
@@ -80,11 +92,9 @@ void t4() {
     cout << "enter N: ";
     cin >> N;
 
-    if (N < 1) {
-        N = 1;
-    }
+    if (N < 1) { N = 1; }
 
-    for (int n=N; n<N+10; n++) {
+    for (int n = N; n < N + 10; n++) {
         cout << n << " ";
     }
     
@@ -93,23 +103,23 @@ void t4() {
 
  
 void t5() {
+    cout << setprecision(3);
     for (double x = -4; x <= 4; x += 0.5) {
-        if (x - 1 != 0 ) {
-            cout << setprecision(5);
-            cout << "x = " << setw(7) << left << x;
-            cout << "y = " << (x*x - 2*x + 2) / (x - 1) << endl;
+        cout << "x = " << setw(7) << left << x;
+
+        if (x - 1 != 0 ) { 
+            cout << "y = " << (x*x - 2*x + 2) / (x - 1) << endl; 
         }
-        else {
-            cout  << "x = " << setw(7) << left << x;
-            cout << "no answer (division by zero)" << endl;
+        else { 
+            cout << "no answer (division by zero)" << endl; 
         }
     }
 }
 
 int main() {
-    cout << "Task 1" << endl, t1();
-    cout << "Task 2" << endl, t2();
-    cout << "Task 3" << endl, t3();
+    // cout << "Task 1" << endl, t1();
+    // cout << "Task 2" << endl, t2();
+    // cout << "Task 3" << endl, t3();
     cout << "Task 4" << endl, t4();
     cout << "Task 5" << endl, t5();
 }
