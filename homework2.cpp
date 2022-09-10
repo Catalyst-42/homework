@@ -95,7 +95,8 @@ void t4() {
 void t5() {
     for (double x = -4; x <= 4; x += 0.5) {
         if (x - 1 != 0 ) {
-            cout  << "x = " << setw(7) << left << x;
+            cout << setprecision(5);
+            cout << "x = " << setw(7) << left << x;
             cout << "y = " << (x*x - 2*x + 2) / (x - 1) << endl;
         }
         else {
