@@ -120,9 +120,9 @@ void t5() {
 }
 
 int main() {
-    // cout << "Task 1" << endl, t1();
-    // cout << "Task 2" << endl, t2();
-    // cout << "Task 3" << endl, t3();
+    cout << "Task 1" << endl, t1();
+    cout << "Task 2" << endl, t2();
+    cout << "Task 3" << endl, t3();
     cout << "Task 4" << endl, t4();
     cout << "Task 5" << endl, t5();
 }

@@ -57,6 +57,7 @@ void t4() {
 
     char symbol;
     while (!file.eof()) { cout << (char) file.get(); }
+    cout << endl;
     
     file.close();
 }
@@ -77,14 +78,14 @@ void t5() {
         }
     }
 
-    cout << line;
+    cout << line << endl;
 }
 
 int main() {
     setlocale(0, "");
-    // cout << "Task 1\n"; t1();
-    // cout << "Task 2\n"; t2();
-    // cout << "Task 3\n"; t3();
-    // cout << "Task 4\n"; t4();
-    // cout << "Task 5\n"; t5();
+    cout << "Task 1\n"; t1();
+    cout << "Task 2\n"; t2();
+    cout << "Task 3\n"; t3();
+    cout << "Task 4\n"; t4();
+    cout << "Task 5\n"; t5();
 }
