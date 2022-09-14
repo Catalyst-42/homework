@@ -18,7 +18,10 @@ void t1() {
     double l = sqrt(h*h + (R-r)*(R-r));
     
     if (h<0 || r<0 || R<0) { cout << "Parameters cannot be negative!" << endl; return; }
-
+    
+    if (h == 0) {
+        cout << "You have entered the parameters for the circle!" << endl;
+    }
     if (r == R) { 
         if (r == 0) { 
             cout << "You have entered the parameters for the line!" << endl; 
