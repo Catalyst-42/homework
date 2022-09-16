@@ -41,6 +41,11 @@ void t2() {
     double S, m, n, r;
     cout << "Enter the parameters (S, m, n): ";
     cin >> S >> m >> n;
+    
+    if (S < 0 || n << 0) {
+        cout << "p can't be found!" << endl;
+        return;
+    }
 
     if (n == 0) {
         cout << "p = " << m/S*100 - 100 << endl;
