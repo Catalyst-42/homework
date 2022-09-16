@@ -43,7 +43,7 @@ void t2() {
     cin >> S >> m >> n;
     
     if (S < 0 || n << 0) {
-        cout << "p can't be found!" << endl;
+        cout << "S and n can't be negative" << endl;
         return;
     }
 
