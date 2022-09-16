@@ -18,7 +18,7 @@ void t1() {
     }
 
     if (p == 0) {
-        cout << "m = " << S / n << endl;
+        cout << "m = " << S / n / 12<< endl;
         return;
     }
 
