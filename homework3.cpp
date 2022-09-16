@@ -42,8 +42,8 @@ void t2() {
     cout << "Enter the parameters (S, m, n): ";
     cin >> S >> m >> n;
 
-    if (m == 0) {
-        cout << "p = -100%" << endl;
+    if (n == 0) {
+        cout << "p = " << m/S*100 - 100 << endl;
         return;
     }
     
