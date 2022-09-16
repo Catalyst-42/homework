@@ -41,10 +41,15 @@ void t2() {
     double S, m, n, r;
     cout << "Enter the parameters (S, m, n): ";
     cin >> S >> m >> n;
+
+    if (m == 0) {
+        cout << "p = -100%" << endl;
+        return;
+    }
     
-    for (int p = 1; p <= 100; p++){
+    for (double p = -500; p <= 500; p += 0.1){
         r = (double) p/100;
-        if (m == (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) {
+        if (abs(m - (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) <= 0.1) {
             cout << "p = " << p << endl;
             return;
         }
