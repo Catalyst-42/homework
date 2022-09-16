@@ -65,7 +65,7 @@ void t2() {
         }
     }
 
-    cout << "p not found" << endl;
+    cout << "p not in range [-500, 500]" << endl;
 }
 
 void t3() {
