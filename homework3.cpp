@@ -11,6 +11,21 @@ void t1() {
     double S, n, p;
     cout << "Enter the parameters (S, n, p): ";
     cin >> S >> n >> p;
+    
+    if (S < 0 || n < 0) {
+        cout << "S and n can't be negative!";
+        return;
+    }
+
+    if (p == 0) {
+        cout << "m = " << S / n << endl;
+        return;
+    }
+
+    if (n == 0) {
+        cout << "m = 0" << endl;
+        return;
+    }
 
     double r = p/100;
     double m = (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1));
