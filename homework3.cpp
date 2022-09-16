@@ -42,8 +42,13 @@ void t2() {
     cout << "Enter the parameters (S, m, n): ";
     cin >> S >> m >> n;
     
-    if (S < 0 || n << 0) {
+    if (S < 0 || n < 0) {
         cout << "S and n can't be negative" << endl;
+        return;
+    }
+
+    if (S == 0 && m == 0) {
+        cout << "p can be any number" << endl;
         return;
     }
 
