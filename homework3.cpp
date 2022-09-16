@@ -23,7 +23,7 @@ void t1() {
     }
 
     if (n == 0) {
-        cout << "m = 0" << endl;
+        cout << "m = " << S * (1 + p/100) << endl;
         return;
     }
 
