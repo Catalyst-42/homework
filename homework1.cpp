@@ -68,6 +68,9 @@ void task1_4() {
         // bx + c = 0
         // x = -c/b
 
+        if (c == 0 && b == 0) {
+            cout << "x can be any number" << endl;
+        }
         if (b == 0) { 
             cout << "no answer (division by zero)" << endl;
         }
