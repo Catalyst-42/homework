@@ -57,9 +57,9 @@ void t2() {
         return;
     }
     
-    for (double p = -500; p <= 500; p += 0.1){
+    for (double p = -500; p <= 500; p += 0.1) {
         r = (double) p/100;
-        if (abs(m - (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) <= 0.1) {
+        if (abs(m - (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) <= 0.01) {
             cout << "p = " << p << endl;
             return;
         }
@@ -70,24 +70,30 @@ void t2() {
 
 void t3() {
     ifstream file;
+    string line, file_data;
 
     file.open("file.txt");
-    string s;
 
-    while (getline(file, s)) {
-        cout << s << endl;
-    }
+    while (getline(file, line)) { file_data += line + "\n"; }
+    cout << file_data;
 
     file.close();
 }
 
 void t4() {
-    ifstream file;
-    file.open("file.txt");
+    ifstream file("file.txt");
+    string line;
 
-    char symbol;
-    while (!file.eof()) { cout << (char) file.get(); }
-    cout << endl;
+    while (getline(file, line)) {
+        for (int i = 0; i < line.size(); i++) {
+            if (isdigit(line.at(i))) {
+                cout << line.at(i);
+            } else {
+                cout << " ";
+            }
+        }
+        cout << endl;
+    }
     
     file.close();
 }
@@ -99,12 +105,12 @@ void t5() {
     cout << "Enter 30 characters: ";
     cin >> line;
 
-    for (int i = 0; i < length; i++) {
-        for (int j = i; j < length; j++) {
-            if (i == j) { continue; }
-            if (line[j] < line[i]) {
-                swap(line[j], line[i]);
-            }
+    // insertion sort
+    for (int i = 0; i < length; ++i) {
+        int j = i;
+        while (j > 0 && line[j] < line[j-1]) {
+            swap(line[j], line[j-1]);
+            j--;
         }
     }
 
