@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <math.h>
+#include <map>
 
 using namespace std;
 
@@ -149,11 +150,45 @@ void t5() {
     cout << "  |sin(" << (double) x_length / 4 << "π) = " << sin((double) x_length / 4 * M_PI) << endl;
 }
 
+void t6() {
+    map <char, int> intmap;
+    intmap['I'] = 1;    intmap['V'] = 5;
+    intmap['X'] = 10;   intmap['L'] = 50;
+    intmap['C'] = 100;  intmap['D'] = 500;
+    intmap['M'] = 1000;
+
+    string input;
+    cout << "Enter the Roman number [IVXLCDM]: ";
+    cin >> input;
+
+    int sum = intmap[input[input.length()-1]];
+    for (int i = input.length()-2; i >= 0; i--) {
+        if (intmap[input[i]] < intmap[input[i+1]]) { sum -= intmap[input[i]]; }
+        else { sum += intmap[input[i]]; }
+    }
+
+    cout << input << " = " << sum << endl;
+}
+
+void t7() {
+    int s=0, m=37, b=3, c=64;
+
+    while (true) {
+        s = (m*s + b) % c;
+        cout << s;
+
+        cin.get();
+    }
+    
+}
+
 int main() {
     setlocale(0, "");
     // cout << "Test 1\n", t1();
     // cout << "Test 2\n", t2();
     // cout << "Test 3\n", t3();
     // cout << "Test 4\n", t4();
-    cout << "Test 5\n", t5();
+    // cout << "Test 5\n", t5();
+    // cout << "Test 6\n", t6();
+    cout << "Test 7\n", t7();
 }
