@@ -177,9 +177,8 @@ void t7() {
         s = (m*s + b) % c;
         cout << s;
 
-        cin.get();
+        if (cin.get() == '0') { return; }
     }
-    
 }
 
 int main() {
