@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <math.h>
+#include <regex>
 #include <map>
 
 using namespace std;
@@ -161,13 +162,18 @@ void t6() {
     cout << "Enter the Roman number [IVXLCDM]: ";
     cin >> input;
 
-    int sum = intmap[input[input.length()-1]];
-    for (int i = input.length()-2; i >= 0; i--) {
-        if (intmap[input[i]] < intmap[input[i+1]]) { sum -= intmap[input[i]]; }
-        else { sum += intmap[input[i]]; }
-    }
+    if (regex_match(input, regex("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$"))) {
+        int sum = intmap[input[input.length()-1]];
+        for (int i = input.length()-2; i >= 0; i--) {
+            if (intmap[input[i]] < intmap[input[i+1]]) { sum -= intmap[input[i]]; }
+            else { sum += intmap[input[i]]; }
+        }
 
-    cout << input << " = " << sum << endl;
+        cout << input << " = " << sum << endl;
+    }
+    else {
+        cout << "Wrong number pattern!";
+    }
 }
 
 void t7() {
@@ -176,7 +182,7 @@ void t7() {
     while (true) {
         s = (m*s + b) % c;
         cout << s;
-
+        
         if (cin.get() == '0') { return; }
     }
 }
@@ -189,5 +195,5 @@ int main() {
     // cout << "Test 4\n", t4();
     // cout << "Test 5\n", t5();
     // cout << "Test 6\n", t6();
-    cout << "Test 7\n", t7();
+    // cout << "Test 7\n", t7();
 }

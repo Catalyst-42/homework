@@ -59,7 +59,7 @@ void t2() {
     
     for (double p = -500; p <= 500; p += 0.1) {
         r = (double) p/100;
-        if (abs(m - (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) <= 0.01) {
+        if (abs(m - (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) <= 0.1) {
             cout << "p = " << p << endl;
             return;
         }
@@ -84,16 +84,21 @@ void t4() {
     ifstream file("file.txt");
     string line;
 
+    bool find_once = false;
+    bool find = false;
+
     while (getline(file, line)) {
         for (int i = 0; i < line.size(); i++) {
             if (isdigit(line.at(i))) {
-                cout << line.at(i);
-            } else {
-                cout << " ";
+                cout << line.at(i); find = true; find_once = true;
+            } 
+            else if (find) {
+                cout << " "; find = false;
             }
         }
-        cout << endl;
     }
+
+    if (!find_once) cout << "File doesn't contain numbers!" << endl;
     
     file.close();
 }
@@ -101,6 +106,8 @@ void t4() {
 void t5() {
     int length = 30;
     char line[length];
+
+    // jnhbtgyuolkierdfswqazxcvbgfdep
 
     cout << "Enter 30 characters: ";
     cin >> line;
