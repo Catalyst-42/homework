@@ -9,13 +9,13 @@ using namespace std;
 
 void t1() {
     ofstream write_file("file2.txt");
-    for (int i = 0; i < 10; i++) { write_file << rand() << endl; }
+    for (int i = 0; i < 2; i++) { write_file << rand()<< endl; }
     write_file.close();
 
-    int sum = 0;
+    double sum = 0;
     string line;
     ifstream read_file("file2.txt");
-    while (getline(read_file, line)) { sum += stoi(line); }
+    while (getline(read_file, line)) { sum += stod(line); }
     read_file.close();
 
     cout << "sum = " << sum << endl;
@@ -118,37 +118,16 @@ void t4() {
 }
 
 void t5() {
-    // Y |
-    //   |.-.     .-.     .-   1 line
-    // --/---\---/---\---/-->  2 line
-    // -´|    `-´     `-´   X  3 line
-    //   |
+    const int X = 60;
+    const int Y = 7;
+    const int scale = Y / 2;
 
-    int x_length = 14; // symbols
-
-    cout << "Y ^";
-    for (int i = 3; i < x_length; i++) { cout << ' '; }
-    cout << endl;
-
-    // 1 line
-    cout << "  |";
-    string heads = ".-.     ";
-    for (int i = 0; i < x_length / 8; i++) { cout << heads; }
-    cout << heads.substr(0, x_length % 8) << endl;
-
-    // 2 line
-    string mids = "---\\---/";
-    cout << "--/";
-    for (int i = 0; i < x_length / 8; i++) { cout << mids; }
-    cout << mids.substr(0, x_length % 8) << ">" << endl;
-
-    // 3 line
-    string tails = "    `-´ ";
-    cout << "-´|";
-    for (int i = 0; i < x_length / 8; i++) { cout << tails; }
-    cout << tails.substr(0, x_length % 8) << "X" << endl;
-
-    cout << "  |sin(" << (double) x_length / 4 << "π) = " << sin((double) x_length / 4 * M_PI) << endl;
+    for (int y = Y; y >= 0; y--) {
+        for (int x = 0; x <= X; x++) {
+            round(sin(M_PI*x/16)*scale + scale) == y ? cout << '*' : cout << ' ';
+        }
+        cout << endl;
+    }
 }
 
 void t6() {
@@ -156,7 +135,7 @@ void t6() {
     intmap['I'] = 1;    intmap['V'] = 5;
     intmap['X'] = 10;   intmap['L'] = 50;
     intmap['C'] = 100;  intmap['D'] = 500;
-    intmap['M'] = 1000;
+    intmap['M'] = 1000; 
 
     string input;
     cout << "Enter the Roman number [IVXLCDM]: ";
@@ -187,6 +166,100 @@ void t7() {
     }
 }
 
+void t8() {
+    double A[3][4] = {
+        {5,  2, 0, 10},
+        {3,  5, 2, 5},
+        {20, 0, 0, 0}
+    };
+
+    double B[4][2] = {
+        {1.2, 0.5},
+        {2.8, 0.4},
+        {5.0, 1.0},
+        {2.0, 1.5},
+    };
+
+    double C[3][2] = {};
+    for (int y = 0; y < 3; y++) {
+        for (int x = 0; x < 2; x++) {
+            C[y][x] = 0;
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 4; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+
+    double comission[3] = {C[0][1], C[1][1], C[2][1]};
+    double sold[3] = {C[0][0] - C[0][1], C[1][0] - C[1][1], C[2][0] - C[2][1]};
+
+    int comission_min = 1, comission_max = 3;
+    int min = C[0][1], max = C[2][1];
+    for (int i = 1; i < 3; i++) {
+        if (comission[i] > max) {
+            comission_max = i + 1; max = comission[i];
+        }
+        if (comission[i] < min) {
+            comission_min = i + 1; min = comission[i];
+        }
+    }
+
+    cout << "max comission: " << comission_max << " seller (" << max << "c)" << endl;
+    cout << "min comission: " << comission_min << " seller (" << min << "c)" << endl;
+
+    int sold_min = 1, sold_max = 3;
+    min = C[0][0] - C[0][1]; max = C[2][0] - C[2][1];
+    for (int i = 1; i < 3; i++) {
+        if (sold[i] > max) {
+            sold_max = i + 1; max = sold[i];
+        }
+
+        if (sold[i] < min) {
+            sold_min = i + 1; min = sold[i];
+        }
+    }
+
+    cout << "max sold: " << sold_max << " seller (" << max << "c)" << endl;
+    cout << "min sold: " << sold_min << " seller (" << min << "c)" << endl;
+    
+    cout << sold[0] + sold[1] + sold[2] << "c sold out" << endl;
+    cout << comission[0] + comission[1] + comission[2] << "c from comission" << endl;
+    cout << sold[0] + sold[1] + sold[2] + comission[0] + comission[1] + comission[2] << "c all coins" << endl;
+}
+
+void t9() {
+    long int D, x, y;
+    string A = "", B = "";
+    string intmap = "0123456789ABCDEFGHJKLMNOPQRSTUVWXYZ";
+
+    cout << "Input numbers for Ax -> By (A,x,y): ";
+    cin >> A >> x >> y;
+
+    for (int i = 0; i < A.length(); i++) {
+        if (intmap.find(A[i]) >= x) {
+            cout << "Wrong input!" << endl; 
+            return;       
+        }
+    }
+
+    D = 0;
+    for (int i = 0; i < A.length(); i++) {
+        D += intmap.find(A[i]) * pow(x, -i+A.length()-1);
+    }
+
+    while (D > 0) {
+        B = intmap[D%y] + B;
+        D /= y;
+    }
+
+    cout << "B = " << B << endl;
+}
+
 int main() {
     setlocale(0, "");
     // cout << "Test 1\n", t1();
@@ -196,4 +269,7 @@ int main() {
     // cout << "Test 5\n", t5();
     // cout << "Test 6\n", t6();
     // cout << "Test 7\n", t7();
+    // cout << "Test 8\n", t8();
+    // cout << "Test 9\n", t9();
+
 }

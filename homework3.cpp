@@ -99,15 +99,15 @@ void t4() {
     }
 
     if (!find_once) cout << "File doesn't contain numbers!" << endl;
-    
     file.close();
 }
 
 void t5() {
-    int length = 30;
+    const int length = 30;
     char line[length];
 
     // jnhbtgyuolkierdfswqazxcvbgfdep
+    // jIhbtTWQoDkisdfswqaSSxcDbgfFeC
 
     cout << "Enter 30 characters: ";
     cin >> line;
