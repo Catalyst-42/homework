@@ -5,6 +5,10 @@
 #include <regex>
 #include <map>
 
+#define M_PI 3.14159265358979323846
+#define P "\033[35m"
+#define W "\033[0m"
+
 using namespace std;
 
 void t1() {
@@ -68,7 +72,7 @@ void t3() {
             cout << "Enter rectangle parameters (a,b): ";
             cin >> a >> b;
             if (a > 0 && b > 0) {
-                cout << "S = " << rectangular_area(a, b);
+                cout << "S = " << rectangular_area(a, b) << endl;
             } else {
                 cout << "[Error] sides can't be negative!" << endl;
             }
@@ -81,7 +85,7 @@ void t3() {
                 if (a+b > c && a+c > b && c+b > a) {
                     cout << "S = " << triangle_area(a, b, c) << endl;
                 } else {
-                    cout << "[Error] Not a triangle!";
+                    cout << "[Error] Not a triangle!" << endl;
                 }
             } else { 
                 cout << "[Error] sides can't be negative!" << endl;
@@ -92,7 +96,7 @@ void t3() {
             cout << "Enter circle radius (r): ";
             cin >> r;
             if (r >= 0) {
-                cout << "S = " << circle_area(r);
+                cout << "S = " << circle_area(r) << endl;
             } else {
                 cout << "[Error] Radius can't be negative!" << endl;
             }
@@ -121,7 +125,7 @@ void t5() {
     const int X = 60;
     const int Y = 7;
     const int scale = Y / 2;
-
+      
     for (int y = Y; y >= 0; y--) {
         for (int x = 0; x <= X; x++) {
             round(sin(M_PI*x/16)*scale + scale) == y ? cout << '*' : cout << ' ';
@@ -151,7 +155,7 @@ void t6() {
         cout << input << " = " << sum << endl;
     }
     else {
-        cout << "Wrong number pattern!";
+        cout << "Wrong number pattern!" << endl;
     }
 }
 
@@ -262,14 +266,13 @@ void t9() {
 
 int main() {
     setlocale(0, "");
-    // cout << "Test 1\n", t1();
-    // cout << "Test 2\n", t2();
-    // cout << "Test 3\n", t3();
-    // cout << "Test 4\n", t4();
-    // cout << "Test 5\n", t5();
-    // cout << "Test 6\n", t6();
-    // cout << "Test 7\n", t7();
-    // cout << "Test 8\n", t8();
-    // cout << "Test 9\n", t9();
-
+    cout << P << "Test 1\n" << W, t1();
+    cout << P << "Test 2\n" << W, t2();
+    cout << P << "Test 3\n" << W, t3();
+    cout << P << "Test 4\n" << W, t4();
+    cout << P << "Test 5\n" << W, t5();
+    cout << P << "Test 6\n" << W, t6();
+    cout << P << "Test 7\n" << W, t7();
+    cout << P << "Test 8\n" << W, t8();
+    cout << P << "Test 9\n" << W, t9();
 }
