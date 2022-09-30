@@ -115,8 +115,10 @@ void t5() {
     // insertion sort
     for (int i = 0; i < length; ++i) {
         int j = i;
-        while (j > 0 && line[j] < line[j-1]) {
-            swap(line[j], line[j-1]);
+        while (j > 0 && tolower(line[j]) <= tolower(line[j-1])) {
+            if (line[j] != tolower(line[j - 1])) {
+                swap(line[j], line[j-1]);
+            }
             j--;
         }
     }
