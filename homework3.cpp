@@ -13,8 +13,12 @@ void t1() {
     cin >> S >> n >> p;
     
     if (S < 0 || n < 0) {
-        cout << "S and n can't be negative!";
+        cout << "S and n can't be negative!" << endl;
         return;
+    }
+
+    if (S == 0) {
+        cout << "m can be any number!" << endl;
     }
 
     if (p == 0) {
@@ -38,7 +42,7 @@ void t1() {
 }
 
 void t2() {
-    double S, m, n, r;
+    double S, m, n, r, p;
     cout << "Enter the parameters (S, m, n): ";
     cin >> S >> m >> n;
     
@@ -57,15 +61,23 @@ void t2() {
         return;
     }
     
-    for (double p = -500; p <= 500; p += 0.1) {
-        r = (double) p/100;
-        if (abs(m - (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1))) <= 0.1) {
-            cout << "p = " << p << endl;
-            return;
-        }
-    }
+    double left = -100;
+    double right = 1000;
+    double m_approx = 0;
 
-    cout << "p not in range [-500, 500]" << endl;
+    while (left < right) {
+        p = (left + right) / 2;
+        
+        r = p / 100;
+        m_approx = (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1));
+
+        if (p == right) right += 10000;  
+        // cout << m - m_approx << " <> p =" << p << endl;
+
+        if (m_approx == m || p < 0 && abs(m - m_approx) < 0.0015) { cout << "p (approx.) = " << p; break; }
+        if (m_approx > m) { right = p; }
+        else { left = p; }
+    }
 }
 
 void t3() {
@@ -104,21 +116,18 @@ void t4() {
 
 void t5() {
     const int length = 30;
-    char line[length];
+    char line[length + 1];
 
-    // jnhbtgyuolkierdfswqazxcvbgfdep
-    // jIhbtTWQoDkisdfswqaSSxcDbgfFeC
+    // jIhbtTWQoDkisdfswqaSSxcDbgf942
 
     cout << "Enter 30 characters: ";
     cin >> line;
 
-    // insertion sort
+    // insertion sort AaBbCc
     for (int i = 0; i < length; ++i) {
         int j = i;
         while (j > 0 && tolower(line[j]) <= tolower(line[j-1])) {
-            if (line[j] != tolower(line[j - 1])) {
-                swap(line[j], line[j-1]);
-            }
+            if (line[j] != tolower(line[j])) swap(line[j], line[j-1]);
             j--;
         }
     }
