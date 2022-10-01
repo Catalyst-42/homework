@@ -5,7 +5,7 @@
 #include <regex>
 #include <map>
 
-#define M_PI 3.14159265358979323846
+// #define M_PI 3.14159265358979323846
 #define P "\033[35m"
 #define W "\033[0m"
 
@@ -13,15 +13,22 @@ using namespace std;
 
 void t1() {
     ofstream write_file("file2.txt");
-    for (int i = 0; i < 2; i++) { write_file << rand()<< endl; }
+
+    for (int i = 0; i < 10; i++) { 
+        write_file << (double) rand() / RAND_MAX * 160 << endl; 
+    }
+
     write_file.close();
 
-    double sum = 0;
-    string line;
     ifstream read_file("file2.txt");
-    while (getline(read_file, line)) { sum += stod(line); }
-    read_file.close();
+    double sum = 0;
+    double line;
 
+    while (read_file >> line) {
+        sum += line;
+    }
+    
+    read_file.close();
     cout << "sum = " << sum << endl;
 }
 
@@ -47,17 +54,89 @@ void t2() {
     }
 }
 
-double rectangular_area(double a, double b) {
-    return a * b;
+void rectangle_area() {
+    double a, b;
+
+    cout << "Enter rectangle parameters (a,b): ";
+    cin >> a >> b;
+    if (a > 0 && b > 0) {
+        cout << "S = " << a*b << endl;
+    } else {
+        cout << "[Error] sides can't be negative!" << endl;
+    }
 }
 
-double triangle_area(double a, double b, double c) {
-    double p = (a+b+c) / 2;
-    return sqrt(p*(p-a)*(p-b)*(p-c));
+void triangle_area() {
+    double a, b, c, alpha, beta;
+    double p;
+
+    int choice;
+    cout << "Choose a formula:" << endl;
+    cout << "1: S = sqrt(p*(p - a)*(p - b)*(p - c))\n   by a, b, c\n" << endl;
+    cout << "2: S = 0.5*a*b*sin(alpha)\n   by a, b, alpha in degrees\n" << endl;
+    cout << "3: S = (a*a * sin(alpha) * sin(beta)) / (2 * sin(alpha + beta))\n   by a, alpha and beta in degrees\n" << endl;
+    cout << "Input: ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1:
+            cout << "Enter triangle parameters (a,b,c): ";
+            cin >> a >> b >> c;
+            if (a > 0 && b > 0 && c > 0) { 
+                if (a+b > c && a+c > b && c+b > a) {
+                    p = (a+b+c) / 2;
+                    cout << "S = " << sqrt(p*(p-a)*(p-b)*(p-c)) << endl;
+                } 
+                else {
+                    cout << "[Error] Not a triangle!" << endl;
+                }
+            } else { 
+                cout << "[Error] sides can't be negative!" << endl;
+            }
+            break;        
+
+        case 2:
+            cout << "Enter triangle parameters (a,b,alpha): ";
+            cin >> a >> b >> alpha;
+            alpha = alpha * M_PI / 180;
+            if (a > 0 && b > 0 && alpha < M_PI) {
+                cout << "S = " << 0.5*a*b*sin(alpha) << endl;
+            } 
+            else {
+                cout << "[Error] a and b can't be negative, alpha should be less than 180 degrees!" << endl;
+            }
+            break;
+
+        case 3:
+            cout << "Enter triangle parameters (a,alpha,beta): ";
+            cin >> a >> alpha >> beta;
+            alpha = alpha * M_PI / 180;
+            beta = beta * M_PI / 180;
+            if (a > 0 && alpha > 0 && beta > 0 && alpha + beta < 90*M_PI/180) {
+                cout << "S = " << (a*a*sin(alpha)*sin(beta)) / (2*sin(alpha + beta)) << endl;
+            }
+            else {
+                cout << "[Error] a and h can't be negative, alpha + beta should be less than 90 degrees!" << endl;
+            }
+            break;
+
+        default:
+            cout << "[Error] Wrong formula number!" << endl;
+            break;
+    }
 }
 
-double circle_area(double r) {
-    return M_PI * r*r;
+void circle_area() {
+    double r;
+    cout << "Enter circle radius (r): ";
+    cin >> r;
+
+    if (r >= 0) {
+        cout << "S = " << M_PI * r*r << endl;
+    } 
+    else {
+        cout << "[Error] Radius can't be negative!" << endl;
+    }
 }
 
 void t3() {
@@ -68,38 +147,20 @@ void t3() {
     cin >> figure_number;
 
     switch (figure_number) {
-        case 1: // rectangle
-            cout << "Enter rectangle parameters (a,b): ";
-            cin >> a >> b;
-            if (a > 0 && b > 0) {
-                cout << "S = " << rectangular_area(a, b) << endl;
-            } else {
-                cout << "[Error] sides can't be negative!" << endl;
-            }
+        case 1:
+            rectangle_area();
             break;
 
-        case 2: // triangle
-            cout << "Enter triangle paremeters (a,b,c): ";
-            cin >> a >> b >> c;
-            if (a > 0 && b > 0 && c > 0) { 
-                if (a+b > c && a+c > b && c+b > a) {
-                    cout << "S = " << triangle_area(a, b, c) << endl;
-                } else {
-                    cout << "[Error] Not a triangle!" << endl;
-                }
-            } else { 
-                cout << "[Error] sides can't be negative!" << endl;
-            }
+        case 2:
+            triangle_area();
             break;
 
-        case 3: // circle
-            cout << "Enter circle radius (r): ";
-            cin >> r;
-            if (r >= 0) {
-                cout << "S = " << circle_area(r) << endl;
-            } else {
-                cout << "[Error] Radius can't be negative!" << endl;
-            }
+        case 3:
+            circle_area();
+            break;
+
+        default:
+            cout << "[Error] Wrong figure number!" << endl;
             break;
     }
 }
@@ -122,12 +183,12 @@ void t4() {
 }
 
 void t5() {
-    const int X = 60;
+    const int X = 64;
     const int Y = 7;
     const int scale = Y / 2;
       
     for (int y = Y; y >= 0; y--) {
-        for (int x = 0; x <= X; x++) {
+        for (int x = 0; x < X; x++) {
             round(sin(M_PI*x/16)*scale + scale) == y ? cout << '*' : cout << ' ';
         }
         cout << endl;
@@ -161,13 +222,16 @@ void t6() {
 
 void t7() {
     int s=0, m=37, b=3, c=64;
+    int lim;
 
-    while (true) {
+    cout << "Enter the recursion limit (lim): ";
+    cin >> lim;
+
+    for (int i = 0; i < lim; i++) {
         s = (m*s + b) % c;
-        cout << s;
-        
-        if (cin.get() == '0') { return; }
     }
+
+    cout << "s = " << s << endl;
 }
 
 void t8() {

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -18,7 +19,8 @@ void t1() {
     }
 
     if (S == 0) {
-        cout << "m can be any number!" << endl;
+        cout << "m = 0" << endl;
+        return;
     }
 
     if (p == 0) {
@@ -74,7 +76,11 @@ void t2() {
         if (p == right) right += 10000;  
         // cout << m - m_approx << " <> p =" << p << endl;
 
-        if (m_approx == m || p < 0 && abs(m - m_approx) < 0.0015) { cout << "p (approx.) = " << p; break; }
+        if (abs(m_approx - m) < 2.0e-14 ) { 
+            cout << "p (approx.) = " << p << endl; 
+            break; 
+        }
+
         if (m_approx > m) { right = p; }
         else { left = p; }
     }
@@ -110,24 +116,24 @@ void t4() {
         }
     }
 
-    if (!find_once) cout << "File doesn't contain numbers!" << endl;
+    if (!find_once) cout << "File doesn't contain numbers!";
+    cout << endl;
     file.close();
 }
 
 void t5() {
-    const int length = 30;
-    char line[length + 1];
+    string line = "";
 
-    // jIhbtTWQoDkisdfswqaSSxcDbgf942
-
-    cout << "Enter 30 characters: ";
+    cout << "Enter line to sort: ";
     cin >> line;
 
-    // insertion sort AaBbCc
-    for (int i = 0; i < length; ++i) {
+    // insertion sort 012AaBbCc
+    for (int i = 0; i < line.length(); ++i) {
         int j = i;
         while (j > 0 && tolower(line[j]) <= tolower(line[j-1])) {
-            if (line[j] != tolower(line[j])) swap(line[j], line[j-1]);
+            if (line[j] != tolower(line[j - 1])) {
+                swap(line[j], line[j-1]);
+            }
             j--;
         }
     }
