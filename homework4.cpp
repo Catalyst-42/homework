@@ -308,6 +308,10 @@ void t9() {
     cout << "Input numbers for Ax -> By (A,x,y): ";
     cin >> A >> x >> y;
 
+    for (int i=0; i<A.length(); i++) {
+        A[i] = toupper(A[i]);
+    }
+    
     for (int i = 0; i < A.length(); i++) {
         if (intmap.find(A[i]) >= x) {
             cout << "Wrong input!" << endl; 
@@ -328,8 +332,24 @@ void t9() {
     cout << "B = " << B << endl;
 }
 
+void make_file() {
+    ofstream file("file.txt");
+    string text = "27823kjm2398 ijk2 1234 jhk234 123\n"
+                  "234 321jlkn 13l2nk 23l1 21ln2 2\n"
+                  " \n"
+                  "1 a 2 b 3\n"
+                  "4 c 5 d 6\n"
+                  " \n"
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \n";
+
+    file << text;
+    file.close();
+}
+
 int main() {
     setlocale(0, "");
+    make_file();
+
     cout << P << "Test 1\n" << W, t1();
     cout << P << "Test 2\n" << W, t2();
     cout << P << "Test 3\n" << W, t3();
