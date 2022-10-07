@@ -112,11 +112,11 @@ void triangle_area() {
             cin >> a >> alpha >> beta;
             alpha = alpha * M_PI / 180;
             beta = beta * M_PI / 180;
-            if (a > 0 && alpha > 0 && beta > 0 && alpha + beta < 90*M_PI/180) {
+            if (a > 0 && alpha > 0 && beta > 0 && alpha + beta < M_PI) {
                 cout << "S = " << (a*a*sin(alpha)*sin(beta)) / (2*sin(alpha + beta)) << endl;
             }
             else {
-                cout << "[Error] a and h can't be negative, alpha + beta should be less than 90 degrees!" << endl;
+                cout << "[Error] a and h can't be negative, alpha + beta should be less than 180 degrees!" << endl;
             }
             break;
 
