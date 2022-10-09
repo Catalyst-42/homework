@@ -33,6 +33,11 @@ void t1() {
         return;
     }
 
+    if (1+p/100 < 0 && (int) n != n) {
+        cout << "m can't be founded (root from negative number)" << endl;
+        return;
+    }
+
     double r = p/100;
     double m = (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1));
 
@@ -69,14 +74,17 @@ void t2() {
 
     while (left < right) {
         p = (left + right) / 2;
-        
+        if (p == -200) p -= 1;
+
         r = p / 100;
         m_approx = (S*r * pow(1+r, n)) / (12 * (pow(1+r, n) - 1));
 
-        if (p == right) right += 10000;  
+        if (p == right) right += 1000;
+        if (p == left) left -= 1000;
+
         // cout << m - m_approx << " <> p =" << p << endl;
 
-        if (abs(m_approx - m) < 2.0e-14 ) { 
+        if (m_approx == m) { 
             cout << "p (approx.) = " << p << endl; 
             break; 
         }
