@@ -12,6 +12,7 @@
 using namespace std;
 
 void t1() {
+    cout << P << "Task 1\n" << W << endl;
     ofstream write_file("file2.txt");
 
     for (int i = 0; i < 10; i++) { 
@@ -39,6 +40,7 @@ int sign(double x) {
 }
 
 void t2() {
+    cout << P << "Task 2\n" << W << endl;
     double x;
     cout << "Enter x: ";
     cin >> x;
@@ -140,6 +142,7 @@ void circle_area() {
 }
 
 void t3() {
+    cout << P << "Task 3\n" << W << endl;
     double a, b, c, r;
 
     int figure_number;
@@ -166,6 +169,7 @@ void t3() {
 }
 
 void t4() {
+    cout << P << "Task 4\n" << W << endl;
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 24; j++) {
             if (j < 8) cout << "* ";
@@ -183,19 +187,33 @@ void t4() {
 }
 
 void t5() {
+    cout << P << "Task 5\n" << W << endl;
     const int X = 64;
     const int Y = 7;
     const int scale = Y / 2;
       
+    bool glyph[6] = {false, false, false, false, false, true};
     for (int y = Y; y >= 0; y--) {
-        for (int x = 0; x < X; x++) {
-            round(sin(M_PI*x/16)*scale + scale) == y ? cout << '*' : cout << ' ';
+        for (int x = 0; x <= X; x++) {
+            glyph[0] = (x==X && y==scale);
+            glyph[1] = (y==Y && x==0);
+            glyph[2] = (x==0);
+            glyph[3] = (round(sin(M_PI*x/16)*scale + scale)==y);
+            glyph[4] = (y==scale);
+
+            for (int g = 0; g <= 5; g++) {
+                if (glyph[g]) {
+                    cout << ">^|*- "[g];
+                    break;
+                }
+            }
         }
         cout << endl;
     }
 }
 
 void t6() {
+    cout << P << "Task 6\n" << W << endl;
     map <char, int> intmap;
     intmap['I'] = 1;    intmap['V'] = 5;
     intmap['X'] = 10;   intmap['L'] = 50;
@@ -203,29 +221,38 @@ void t6() {
     intmap['M'] = 1000; 
 
     string input;
-    cout << "Enter the Roman number [IVXLCDM]: ";
-    cin >> input;
+    while (cout << "Enter the Roman number [IVXLCDM]: ") {
+        cin >> input;
+        if (cin.good() && regex_match(input, regex("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$"))) { break; }
 
-    if (regex_match(input, regex("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$"))) {
-        int sum = intmap[input[input.length()-1]];
-        for (int i = input.length()-2; i >= 0; i--) {
-            if (intmap[input[i]] < intmap[input[i+1]]) { sum -= intmap[input[i]]; }
-            else { sum += intmap[input[i]]; }
-        }
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
+        cout << "Wrong number pattern!" << endl << endl;
+        
+    }
 
-        cout << input << " = " << sum << endl;
+
+    int sum = intmap[input[input.length()-1]];
+    for (int i = input.length()-2; i >= 0; i--) {
+        if (intmap[input[i]] < intmap[input[i+1]]) { sum -= intmap[input[i]]; }
+        else { sum += intmap[input[i]]; }
     }
-    else {
-        cout << "Wrong number pattern!" << endl;
-    }
+
+    cout << input << " = " << sum << endl;
 }
 
 void t7() {
+    cout << P << "Task 7\n" << W << endl;
     int s=0, m=37, b=3, c=64;
     int lim;
 
-    cout << "Enter the recursion limit (lim): ";
-    cin >> lim;
+    while (cout << "Enter the recursion limit (lim): ") {
+        if (cin >> lim && cin.peek() == '\n') { break; }
+
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
+        cout << "Invalid input!" << endl << endl;
+    }
 
     for (int i = 0; i < lim; i++) {
         s = (m*s + b) % c;
@@ -235,6 +262,7 @@ void t7() {
 }
 
 void t8() {
+    cout << P << "Task 8\n" << W << endl;
     double A[3][4] = {
         {5,  2, 0, 10},
         {3,  5, 2, 5},
@@ -257,6 +285,7 @@ void t8() {
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
+
             for (int k = 0; k < 4; k++) {
                 C[i][j] += A[i][k] * B[k][j];
             }
@@ -264,24 +293,10 @@ void t8() {
     }
 
     double comission[3] = {C[0][1], C[1][1], C[2][1]};
-    double sold[3] = {C[0][0] - C[0][1], C[1][0] - C[1][1], C[2][0] - C[2][1]};
+    double sold[3] = {C[0][0], C[1][0], C[2][0]};
 
-    int comission_min = 1, comission_max = 3;
-    int min = C[0][1], max = C[2][1];
-    for (int i = 1; i < 3; i++) {
-        if (comission[i] > max) {
-            comission_max = i + 1; max = comission[i];
-        }
-        if (comission[i] < min) {
-            comission_min = i + 1; min = comission[i];
-        }
-    }
-
-    cout << "max comission: " << comission_max << " seller (" << max << "c)" << endl;
-    cout << "min comission: " << comission_min << " seller (" << min << "c)" << endl;
-
-    int sold_min = 1, sold_max = 3;
-    min = C[0][0] - C[0][1]; max = C[2][0] - C[2][1];
+    int sold_min = 1, sold_max = 1;
+    int min = C[0][0], max = C[0][0];
     for (int i = 1; i < 3; i++) {
         if (sold[i] > max) {
             sold_max = i + 1; max = sold[i];
@@ -294,6 +309,22 @@ void t8() {
 
     cout << "max sold: " << sold_max << " seller (" << max << "c)" << endl;
     cout << "min sold: " << sold_min << " seller (" << min << "c)" << endl;
+
+    int comission_min = 1, comission_max = 1;
+    min = C[0][1], max = C[0][1];
+    for (int i = 1; i < 3; i++) {
+        if (comission[i] > max) {
+            comission_max = i + 1; max = comission[i];
+        }
+        if (comission[i] < min) {
+            comission_min = i + 1; min = comission[i];
+        }
+    }
+
+    cout << "max comission: " << comission_max << " seller (" << max << "c)" << endl;
+    cout << "min comission: " << comission_min << " seller (" << min << "c)" << endl;
+
+    
     
     cout << sold[0] + sold[1] + sold[2] << "c sold out" << endl;
     cout << comission[0] + comission[1] + comission[2] << "c from comission" << endl;
@@ -301,22 +332,47 @@ void t8() {
 }
 
 void t9() {
+    cout << P << "Task 9\n" << W << endl;
+
     long int D, x, y;
+    bool error = false;
     string A = "", B = "";
     string intmap = "0123456789ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
-    cout << "Input numbers for Ax -> By (A,x,y): ";
-    cin >> A >> x >> y;
+    while (cout << "Input numbers for Ax -> By (A,x,y): ") {
+        cin >> A >> x >> y;
 
-    for (int i=0; i<A.length(); i++) {
-        A[i] = toupper(A[i]);
-    }
-    
-    for (int i = 0; i < A.length(); i++) {
-        if (intmap.find(A[i]) >= x) {
-            cout << "Wrong input!" << endl; 
-            return;       
+        for (int i=0; i<A.length(); i++) {
+            A[i] = toupper(A[i]);
         }
+        
+        if (!regex_match(A, regex("^[A-Z0-9]+$"))) {
+            cout << "Number A can only contain characters 0-9 A-Z!" << endl;
+            error = true;
+        }
+
+        if (!error) {
+            for (int i = 0; i < A.length(); i++) {
+                if (intmap.find(A[i]) >= x) {
+                    cout << "Incorrect number system!" << endl;     
+                    error = true;
+                    break;
+                }    
+            }
+        }
+
+        if (!error) {
+            if (x > 35 || x < 2 || y < 0 || y > 35 || cin.peek() != '\n') {
+                cout << "Number system can be only from 2 to 35!" << endl;
+                error = true;
+            }
+        }
+
+        if (!error) { break; }
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
+        cout << endl;
+        error = false;
     }
 
     D = 0;
@@ -341,7 +397,6 @@ void make_file() {
                   "4 c 5 d 6\n"
                   " \n"
                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \n";
-
     file << text;
     file.close();
 }
@@ -349,14 +404,22 @@ void make_file() {
 int main() {
     setlocale(0, "");
     make_file();
+    int function_number = 0;
+    void (*functions[9])() = {t1, t2, t3, t4, t5, t6, t7, t8, t9};
 
-    cout << P << "Test 1\n" << W, t1();
-    cout << P << "Test 2\n" << W, t2();
-    cout << P << "Test 3\n" << W, t3();
-    cout << P << "Test 4\n" << W, t4();
-    cout << P << "Test 5\n" << W, t5();
-    cout << P << "Test 6\n" << W, t6();
-    cout << P << "Test 7\n" << W, t7();
-    cout << P << "Test 8\n" << W, t8();
-    cout << P << "Test 9\n" << W, t9();
+    /*
+    for (function_number=1; function_number<=9; function_number++) {
+        functions[function_number-1]();
+    }
+    */
+
+    while (true) {
+        cout << "Введите номер задания [1-9]: ";
+        cin >> function_number;
+        
+        if (function_number==0) { return 0; }
+        function_number--;
+        
+        functions[function_number]();
+    }
 }
