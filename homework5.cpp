@@ -180,6 +180,7 @@ void t5() {
 
 string number_to_base(string A, int x, int y) {
     bool negative = false;
+    char separator = '.';
     string fraction = "";
     string B = "";
     string intmap = "0123456789ABCDEFGHJKLMNOPQRSTUVWXYZ";
@@ -193,8 +194,8 @@ string number_to_base(string A, int x, int y) {
         A[i] = toupper(A[i]);
     }
 
-    fraction = A.substr(A.find('.') + 1, A.length());
-    A = A.substr(0, A.find('.'));
+    fraction = A.substr(A.find(separator) + 1, A.length());
+    A = A.substr(0, A.find(separator));
 
     // integer part 
     long long int D = 0;
@@ -227,6 +228,7 @@ string number_to_base(string A, int x, int y) {
         }
     }
 
+    if (B[0] == separator) { B = '0' + B; }
     if (negative) { return '-' + B; }
     else { return B; }
 }
