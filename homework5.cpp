@@ -268,6 +268,42 @@ void t6() {
     new_numbers.close();
 }
 
+void t7() {
+    cout << "5-38. Проверка баланса скобок\n\n";
+    string line;
+
+    cout << "Введите строку для проверки: ";
+    cin >> line;
+    cin.ignore(INT_MAX, '\n');
+    cin.clear();
+
+    // ({[
+    int brackets[3] = {0, 0, 0};
+    for (int i=0; i<line.length(); ++i) {
+        if (line[i] == '(') brackets[0]++;
+        if (line[i] == ')') brackets[0]--;
+        
+        if (line[i] == '{') brackets[1]++;
+        if (line[i] == '}') brackets[1]--;
+        
+        if (line[i] == '[') brackets[2]++;
+        if (line[i] == ']') brackets[2]--;
+
+        if (brackets[0] < 0 || brackets[1] < 0 || brackets[2] < 0) {
+            cout << "Баланс не соблюдён\n";
+            return;
+        }
+    }
+
+
+    if (brackets[0] == 0 && brackets[1] == 0 && brackets[2] == 0) {
+        cout << "Баланс соблюдён\n";
+    }
+    else {
+        cout << "Баланс не соблюдён\n";
+    }
+}
+
 void make_file() {
     ofstream file("file.txt");
     string text = "Lorem est ipsum 32 dolor sit amet, at pri utroque 32 debitis. \n"
@@ -288,8 +324,8 @@ int main() {
     make_file();
     setlocale(LC_ALL, "Russian");
 
-    const int tasks = 6; //                  4-15 4-38 5-15
-    void (*functions[tasks])() = {t1, t2, t3, t4, t5, t6};
+    const int tasks = 7; //                  4-15 4-38 5-15
+    void (*functions[tasks])() = {t1, t2, t3, t4, t5, t6, t7};
     int function_number = 0;
 
     while (true) {
