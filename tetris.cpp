@@ -1,10 +1,14 @@
+#include <unordered_map>
 #include <unistd.h>
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <thread>
-#include <map>
+#include <mutex>
 
 // c++ tetris.cpp -std=c++11 -o tetris && ./tetris
+
+std::mutex mlock;
 using namespace std;
 
 int score = 0;
@@ -25,98 +29,48 @@ int figure_next = 1;
 int input = -1;
 int figures_id[6] = {0, 1, 3, 5, 11, 15};
 
-bool block_update = false;
-
 string clear_line = ". . . . . . . . . .";
 string full_line = "@ @ @ @ @ @ @ @ @ @";
 
 // field to display
 string field[Y] = {
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . ."
+    ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . ."
 };
 
 // main field
 string field_clear[Y] = {
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . .",
-    ". . . . . . . . . ."
+    ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . .", ". . . . . . . . . ."
 };
 
 string getFigure(int figure) {
-    map <int, string[4]> figures;
-    figures[0][0] = ". . . .";
-    figures[0][1] = ". @ @ .";
-    figures[0][2] = ". @ @ .";
-    figures[0][3] = ". . . .";
+    unordered_map <int, string> figures;
+    figures[0] = ". . . .. @ @ .. @ @ .. . . ."; // O
 
-    figures[1][0] = ". . . ."; figures[2][0] = ". . @ .";
-    figures[1][1] = "@ @ @ @"; figures[2][1] = ". . @ .";
-    figures[1][2] = ". . . ."; figures[2][2] = ". . @ .";
-    figures[1][3] = ". . . ."; figures[2][3] = ". . @ .";
+    figures[1] = ". . . .@ @ @ @. . . .. . . ."; // I
+    figures[2] = ". . @ .. . @ .. . @ .. . @ .";
 
-    figures[3][0] = ". . . ."; figures[4][0] = ". . @ .";
-    figures[3][1] = ". . @ @"; figures[4][1] = ". . @ @";
-    figures[3][2] = ". @ @ ."; figures[4][2] = ". . . @";
-    figures[3][3] = ". . . ."; figures[4][3] = ". . . .";
-    
-    figures[5][0] = ". . . ."; figures[6][0] = ". . . @";
-    figures[5][1] = ". @ @ ."; figures[6][1] = ". . @ @";
-    figures[5][2] = ". . @ @"; figures[6][2] = ". . @ .";
-    figures[5][3] = ". . . ."; figures[6][3] = ". . . .";
-    
-    figures[7][0] = ". . . ."; figures[8][0] = ". . @ ."; figures[9][0] = ". . . @"; figures[10][0] = ". @ @ ."; 
-    figures[7][1] = ". @ @ @"; figures[8][1] = ". . @ ."; figures[9][1] = ". @ @ @"; figures[10][1] = ". . @ ."; 
-    figures[7][2] = ". @ . ."; figures[8][2] = ". . @ @"; figures[9][2] = ". . . ."; figures[10][2] = ". . @ ."; 
-    figures[7][3] = ". . . ."; figures[8][3] = ". . . ."; figures[9][3] = ". . . ."; figures[10][3] = ". . . ."; 
+    figures[3] = ". . . .. . @ @. @ @ .. . . ."; // S
+    figures[4] = ". . @ .. . @ @. . . @. . . .";
 
-    figures[11][0] = ". . . ."; figures[12][0] = ". . @ @"; figures[13][0] = ". @ . ."; figures[14][0] = ". . @ .";
-    figures[11][1] = ". @ @ @"; figures[12][1] = ". . @ ."; figures[13][1] = ". @ @ @"; figures[14][1] = ". . @ .";
-    figures[11][2] = ". . . @"; figures[12][2] = ". . @ ."; figures[13][2] = ". . . ."; figures[14][2] = ". @ @ .";
-    figures[11][3] = ". . . ."; figures[12][3] = ". . . ."; figures[13][3] = ". . . ."; figures[14][3] = ". . . .";
+    figures[5] = ". . . .. @ @ .. . @ @. . . ."; // Z
+    figures[6] = ". . . @. . @ @. . @ .. . . .";
 
-    figures[15][0] = ". . . ."; figures[16][0] = ". . @ ."; figures[17][0] = ". . @ ."; figures[18][0] = ". . @ .";
-    figures[15][1] = ". @ @ @"; figures[16][1] = ". . @ @"; figures[17][1] = ". @ @ @"; figures[18][1] = ". @ @ .";
-    figures[15][2] = ". . @ ."; figures[16][2] = ". . @ ."; figures[17][2] = ". . . ."; figures[18][2] = ". . @ .";
-    figures[15][3] = ". . . ."; figures[16][3] = ". . . ."; figures[17][3] = ". . . ."; figures[18][3] = ". . . .";
-    
+    figures[7] = ". . . .. @ @ @. @ . .. . . ."; // L
+    figures[8] = ". . @ .. . @ .. . @ @. . . ."; 
+    figures[9] = ". . . @. @ @ @. . . .. . . ."; 
+    figures[10] = ". @ @ .. . @ .. . @ .. . . ."; 
 
-    return figures[figure][0] + figures[figure][1] + figures[figure][2] + figures[figure][3];
+    figures[11] = ". . . .. @ @ @. . . @. . . ."; // J
+    figures[12] = ". . @ @. . @ .. . @ .. . . ."; 
+    figures[13] = ". @ . .. @ @ @. . . .. . . ."; 
+    figures[14] = ". . @ .. . @ .. @ @ .. . . .";
+
+    figures[15] = ". . . .. @ @ @. . @ .. . . ."; // T
+    figures[16] = ". . @ .. . @ @. . @ .. . . ."; 
+    figures[17] = ". . @ .. @ @ @. . . .. . . ."; 
+    figures[18] = ". . @ .. @ @ .. . @ .. . . .";
+
+    return figures[figure];
 }
 
 void coutField() {
@@ -130,7 +84,7 @@ void coutField() {
         // next figure
         if (y > 0 && y < 4) {
             cout << "   ";
-            for (int i = 0; i < 27; i++) {
+            for (int i = 0; i < 7; i++) {
                 if (fig.substr((y-1)*7, 7)[i] == '@') cout << '@';
                 else cout << ' ';
             }
@@ -195,10 +149,10 @@ void rotate() {
     int figure_x_heap = figure_x;
     int figure_y_heap = figure_y;
 
-    if (figure == 1) { figure = 2; }
+    if (figure == 1) { figure = 2; } 
     else if (figure == 2) { figure = 1; }
 
-    else if (figure == 3) { figure = 4; }
+    else if (figure == 3) { figure = 4; } 
     else if (figure == 4) { figure = 3; }
 
     else if (figure == 5) { figure = 6; }
@@ -213,7 +167,7 @@ void rotate() {
     else if (figure == 15) { figure = 18; }
     else if (figure > 15 && figure <= 18) { figure = --figure; }
 
-    // if rotate possible
+    // if rotate is possible
     setMaxXY();
     for (int y=0; y<4; y++) {
         for (int x=0; x<7; x++) {
@@ -229,11 +183,11 @@ void rotate() {
 }
 
 void move(int direction) {
-    if (figure_x + direction < figure_min_x || figure_x > figure_max_x) return;
+    if (figure_x + direction < figure_min_x || figure_x + direction > figure_max_x) return;
 
     for (int y=0; y<4; y++) {
         for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@' && field_clear[figure_y+y][figure_x+x+direction] == '@') {
+            if (getFigure(figure)[x+y*7] == '@' && (field_clear[figure_y+y][figure_x+x+direction] == '@')) {
                 return;
             }
         }
@@ -246,7 +200,7 @@ void checkCollision() {
     bool clip = false;
     for (int y=0; y<4; y++) {
         for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@' && (field_clear[figure_y+y+1][figure_x+x] == '@' || figure_y+y == 19)) {
+            if (getFigure(figure)[x+y*7] == '@' && (figure_y+y == 19 || field_clear[figure_y+y+1][figure_x+x] == '@')) {
                 clip = true;
                 break;
             }
@@ -312,20 +266,20 @@ void updateBoard() {
     // cout << "ticks: " << ticks << flush;
 }
 
+bool block = false;
 void yIncrease() {
     while (true) {
         sleep(1);
-        if (!block_update) {
-            checkCollision();
+        mlock.lock();
 
-            ticks++;
-            figure_y++;
+        checkCollision();
 
-            if (ticks%10==0) score += 1;
+        ticks++;
+        figure_y++;
+        if (ticks%10==0) score += 1;
 
-            updateBoard();
-            block_update = false;
-        }
+        updateBoard();
+        mlock.unlock();
     }
 }
 
@@ -335,13 +289,12 @@ void gameLoop() {
 
         // check input
         input = -1;
-        block_update = false;
         input = getchar();
-        block_update = true;
+        mlock.lock();
         
-        if (input == 27) exit(0); // esc
+        if (input == 27) exit(0);  // esc
 
-        if (input == 115) {       // s
+        if (input == 115) {        // s
             checkCollision();
             figure_y++;
             ticks++;
@@ -351,10 +304,13 @@ void gameLoop() {
         if (input == 97) move(-2); // a
         if (input == 100) move(2); // d
         if (input == 32) rotate(); // space
+
+        mlock.unlock();
     }
 }
 
 int main() {
+    srand(time(NULL));
     system("/bin/stty raw");
 
     thread thr1(yIncrease);
