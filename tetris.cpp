@@ -1,7 +1,6 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <iostream>
-#include <cstdlib>
 #include <string>
 #include <thread>
 #include <mutex>
@@ -28,12 +27,11 @@ int figure_next = 1;
 int figure_color = 4;
 int figure_next_color = 2;
 
-int input = -1;
-int figures_id[6] = {0, 1, 3, 5, 11, 15};
-char figure_glyph = '@';
+const char figure_glyph = '@'; // any ascii symbol
 
-string clear_line = ""; // length = X
+string clear_line = "";
 string full_line = "";
+string lower_border = " ";
 
 //                  White      Red         Green       Yellow      Blue        Magenta     Cyan
 string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"};
@@ -76,44 +74,29 @@ string getFigure(int figure) {
 }
 
 void coutField() {
+    string screen = "";
+
     string fig = getFigure(figure_next);
+    replace(fig.begin(), fig.end(), '@', figure_glyph);
+
     for (int y = 1; y < Y; y++) {
-        int previous_color = 0;
+        // field
+        screen += "\033[0m|";
+        for (int x = 0; x < X; x++) screen += colors[field_colors[y*X+x]] + field[y][x];
+        screen += "\033[0m|";
 
-        // borders
-        cout << "\033[0m|";
-        for (int x = 0; x < X; x++) {
-            if (previous_color != field_colors[y*X+x]) {
-                previous_color = field_colors[y*X+x];
-                cout << colors[previous_color];
-            }
-            cout << field[y][x]; 
-        }
-        cout << "\033[0m|";
-
-        if (y == 1) cout << " Следующая фигура: ";
-        
         // next figure
-        if (y > 1 && y < 5) {
-            cout << "   ";
-
-            cout << colors[figure_next_color];
-            cout << fig.substr((y-2)*7, 7);
-        }
+        if (y == 1) screen += " Следующая фигура: ";
+        if (y > 1 && y < 5) screen += "   " + colors[figure_next_color] + fig.substr((y-2)*7, 7);
         
-        if (y == 19) cout << " Линий: " << lines;
-        if (y == 20) cout << " Счёт: " << score;
+        if (y == 19) screen += " Линий: " + to_string(lines);
+        if (y == 20) screen += " Счёт: " + to_string(score);
         
-        // lower border
-        if (y == Y-1) {
-            cout << "\r\n ";
-            for (int x = 0; x < X; x++) {
-                cout << '-';
-            }
-        }
-
-        cout << "\r\n";
+        screen += "\r\n";
     }
+
+    screen += lower_border;
+    cout << screen;
 }
 
 void setFigure() {
@@ -136,25 +119,14 @@ void setFigure() {
 }
 
 void setMaxXY() {
-    if (figure == 1) { 
-        figure_min_x = 0; figure_max_x = X-7; 
-    }
-    
-    if (figure == 2) { 
-        figure_min_x = -4; figure_max_x = X-5;
-    }
-       
-    if (figure == 3 || figure == 5 || figure == 7 || figure == 9 || figure == 11 || figure == 13 || figure == 15 || figure == 17) { 
-        figure_min_x = -2; figure_max_x = X-7; 
-    }
-    
-    if (figure == 8 || figure == 12 || figure == 16 || figure == 4 || figure == 6) { 
-        figure_min_x = -4; figure_max_x = X-7; 
-    }
-    
-    if (figure == 0 || figure == 10 || figure == 14 || figure == 18) { 
-        figure_min_x = -2; figure_max_x = X-5; 
-    }
+    // max
+    if (figure == 0 || figure == 2 || figure == 10 || figure == 14 || figure == 18) figure_max_x = X-5;
+    else figure_max_x = X-7;
+
+    // min
+    if (figure == 2 || figure == 4 || figure == 6 || figure == 8 || figure == 12 || figure == 16) figure_min_x = -4;
+    else if (figure == 1) figure_min_x = 0;
+    else figure_min_x = -2;
 
     // x normalization, especially when rotating
     if (figure_x < figure_min_x) figure_x = figure_min_x;
@@ -170,11 +142,11 @@ void rotate() {
     int rotations[19] = {0, 2, 1, 4, 3, 6, 5, 10, 7, 8, 9, 14, 11, 12, 13, 18, 15, 16, 17};
     figure = rotations[figure];
 
-    // if rotate is possible
+    // if rotate is not possible
     setMaxXY();
     for (int y=0; y<4; y++) {
         for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@' && (field_clear[figure_y+y][figure_x+x] == figure_glyph || figure_y+y>=Y-1)) {
+            if (getFigure(figure)[x+y*7] == '@' && (field_clear[figure_y+y][figure_x+x] == figure_glyph || figure_y+y>Y-1)) {
                 figure = figure_heap;
                 figure_x = figure_x_heap;
                 figure_y = figure_y_heap;
@@ -200,7 +172,9 @@ void move(int direction) {
 }
 
 void checkCollision() {
+    int figures_id[6] = {0, 1, 3, 5, 11, 15};
     bool clip = false;
+
     for (int y=0; y<4; y++) {
         for (int x=0; x<7; x++) {
             if (getFigure(figure)[x+y*7] == '@' && (figure_y+y == Y-1 || field_clear[figure_y+y+1][figure_x+x] == figure_glyph)) {
@@ -210,42 +184,40 @@ void checkCollision() {
         }
     }
 
-    if (clip) {
-        for (int y=0; y<4; y++) {
-            for (int x=0; x<7; x++) {
-                if (getFigure(figure)[x+y*7] == '@') {
-                    if (field_clear[figure_y+y][figure_x+x] == figure_glyph) {
-                        system("clear");
-                        setFigure();
-                        coutField();
+    if (!clip) return;
 
-                        cout << "Игра окончена\r\n";
-                        system ("/bin/stty cooked");
-                        exit(0);
-                    }
+    for (int y=0; y<4; y++) {
+        for (int x=0; x<7; x++) {
+            if (getFigure(figure)[x+y*7] == '@') {
+                if (field_clear[figure_y+y][figure_x+x] == figure_glyph) {
+                    system("clear");
+                    coutField();
 
-                    field_clear[figure_y+y][figure_x+x] = figure_glyph;
-                    field[figure_y+y][figure_x+x] = figure_glyph;
-
-                    field_colors_clear[figure_y*X + y*X + figure_x + x] = figure_color;
+                    cout << "  Игра окончена\r\n";
+                    system ("/bin/stty cooked");
+                    exit(0);
                 }
+
+                field_clear[figure_y+y][figure_x+x] = figure_glyph;
+                field[figure_y+y][figure_x+x] = figure_glyph;
+
+                field_colors_clear[figure_y*X + y*X + figure_x + x] = figure_color;
             }
         }
-        
-        figure_x = (X+1)/2 - 4;
-        if (figure_x%2 != 0) figure_x++;
-
-        figure_y = 0;
-
-        figure = figure_next;
-
-        figure_next = rand() % 6;
-        figure_next = figures_id[figure_next];
-
-        figure_color = figure_next_color;
-        figure_next_color = rand() % 7;
     }
+    
+    figure_x = (X+1)/2 - 4;
+    if (figure_x%2 != 0) figure_x++;
 
+    figure_y = 0;
+
+    figure = figure_next;
+
+    figure_next = rand() % 6;
+    figure_next = figures_id[figure_next];
+
+    figure_color = figure_next_color;
+    figure_next_color = rand() % 7;
 }
 
 void checkLines() {
@@ -297,6 +269,7 @@ void yIncrease() {
 }
 
 void gameLoop() {
+    int input = -1;
     while (true) {
         // check input
         input = -1;
@@ -322,10 +295,13 @@ void gameLoop() {
 }
 
 int main() {
+    setlocale(LC_ALL, "Russian");
+
     // generate lines
     for (int x=0; x<X; x++) {
-        clear_line += (x%2==0) ? "." : " ";
+        clear_line += " ";
         full_line += (x%2==0) ? &figure_glyph : " ";
+        lower_border += "-";
     }
     
     // generate fields
