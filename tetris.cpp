@@ -12,14 +12,14 @@ int score = 0;
 int lines = 0;
 int ticks = 0;
 
-int figure_x = 4;
+const int X = 10 ; // field length
+const int Y = 20 + 1; // field heigth
+
+int figure_x = X/2 - 2;
 int figure_y = 0;
 
 int figure_max_x = 22;
 int figure_min_x = -2;
-
-const int X = 19; // field length
-const int Y = 21; // field heigth
 
 int figure = 15;
 int figure_next = 1;
@@ -27,14 +27,16 @@ int figure_next = 1;
 int figure_color = 4;
 int figure_next_color = 2;
 
-const char figure_glyph = '@'; // any ascii symbol
+const char figure_glyph_a = '['; // any ascii symbol
+const char figure_glyph_b = ']'; // can be ' ' for falfline mode
 
 string clear_line = "";
 string full_line = "";
 string lower_border = " ";
 
 //                  White      Red         Green       Yellow      Blue        Magenta     Cyan
-string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"};
+string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"};  // standard theme
+// string colors[7] = {"\033[0;49m", "\033[31;41m", "\033[32;42m", "\033[33;43m", "\033[34;44m", "\033[35;45m", "\033[36;46m"}; // solid theme
 
 int field_colors[Y*X];
 int field_colors_clear[Y*X];
@@ -44,50 +46,61 @@ string field_clear[Y];
 
 string getFigure(int figure) {
     unordered_map <int, string> figures;
-    figures[0] = "         @ @    @ @         "; // O
+    figures[0] = ".....@@..@@....."; // O
 
-    figures[1] = "       @ @ @ @              "; // I
-    figures[2] = ". . @ .. . @ .. . @ .. . @ .";
+    figures[1] = "....@@@@........"; // I
+    figures[2] = "..@...@...@...@.";
 
-    figures[3] = "           @ @  @ @         "; // S
-    figures[4] = ". . @ .. . @ @. . . @. . . .";
+    figures[3] = "......@@.@@....."; // S
+    figures[4] = "..@...@@...@....";
 
-    figures[5] = "         @ @      @ @       "; // Z
-    figures[6] = ". . . @. . @ @. . @ .. . . .";
+    figures[5] = ".....@@...@@...."; // Z
+    figures[6] = "...@..@@..@.....";
 
-    figures[7] = "         @ @ @  @           "; // L
-    figures[8] = ". . @ .. . @ .. . @ @. . . ."; 
-    figures[9] = ". . . @. @ @ @. . . .. . . ."; 
-    figures[10] = ". @ @ .. . @ .. . @ .. . . ."; 
+    figures[7] = ".....@@@.@......"; // L
+    figures[8] = "..@...@...@@...."; 
+    figures[9] = "...@.@@@........"; 
+    figures[10] = ".@@...@...@....."; 
+    
+    figures[11] = ".....@@@...@...."; // J
+    figures[12] = "..@@..@...@....."; 
+    figures[13] = ".@...@@@........"; 
+    figures[14] = "..@...@..@@.....";
 
-    figures[11] = "         @ @ @      @       "; // J
-    figures[12] = ". . @ @. . @ .. . @ .. . . ."; 
-    figures[13] = ". @ . .. @ @ @. . . .. . . ."; 
-    figures[14] = ". . @ .. . @ .. @ @ .. . . .";
-
-    figures[15] = "         @ @ @    @         "; // T
-    figures[16] = ". . @ .. . @ @. . @ .. . . ."; 
-    figures[17] = ". . @ .. @ @ @. . . .. . . ."; 
-    figures[18] = ". . @ .. @ @ .. . @ .. . . .";
+    figures[15] = ".....@@@..@....."; // T
+    figures[16] = "..@...@@..@....."; 
+    figures[17] = "..@..@@@........"; 
+    figures[18] = "..@..@@...@.....";
 
     return figures[figure];
 }
 
 void coutField() {
     string screen = "";
-
     string fig = getFigure(figure_next);
-    replace(fig.begin(), fig.end(), '@', figure_glyph);
 
     for (int y = 1; y < Y; y++) {
         // field
-        screen += "\033[0m|";
-        for (int x = 0; x < X; x++) screen += colors[field_colors[y*X+x]] + field[y][x];
-        screen += "\033[0m|";
+        screen += "\033[0;49m|";
+        for (int x = 0; x < X; x++) {
+            screen += colors[field_colors[y*X+x]] + field[y][x];
+            
+            if (x == X-1 && figure_glyph_b == ' ') break;
+
+            if (field[y][x] == ' ') screen += ' ';
+            else screen += figure_glyph_b;
+        }
+        screen += "\033[0;49m|";
 
         // next figure
         if (y == 1) screen += " Следующая фигура: ";
-        if (y > 1 && y < 5) screen += "   " + colors[figure_next_color] + fig.substr((y-2)*7, 7);
+        if (y > 1 && y < 5) {
+            screen += "   ";
+            for (int x = 0; x < 4; x++) {
+                if (fig[(y-2)*4 + x] == '.') screen += "\033[0;49m  ";
+                else { screen += colors[figure_next_color] + figure_glyph_a + figure_glyph_b; }
+            }
+        }
         
         if (y == 19) screen += " Линий: " + to_string(lines);
         if (y == 20) screen += " Счёт: " + to_string(score);
@@ -109,9 +122,9 @@ void setFigure() {
     }
 
     for (int y=0; y<4; y++) {
-        for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@') {
-                field[figure_y+y][figure_x+x] = figure_glyph;
+        for (int x=0; x<4; x++) {
+            if (getFigure(figure)[x+y*4] == '@') {
+                field[figure_y+y][figure_x+x] = figure_glyph_a;
                 field_colors[figure_y*X + y*X + figure_x + x] = figure_color;
             }
         }
@@ -120,13 +133,13 @@ void setFigure() {
 
 void setMaxXY() {
     // max
-    if (figure == 0 || figure == 2 || figure == 10 || figure == 14 || figure == 18) figure_max_x = X-5;
-    else figure_max_x = X-7;
+    if (figure == 0 || figure == 2 || figure == 10 || figure == 14 || figure == 18) figure_max_x = X-3;
+    else figure_max_x = X-4;
 
     // min
-    if (figure == 2 || figure == 4 || figure == 6 || figure == 8 || figure == 12 || figure == 16) figure_min_x = -4;
+    if (figure == 2 || figure == 4 || figure == 6 || figure == 8 || figure == 12 || figure == 16) figure_min_x = -2;
     else if (figure == 1) figure_min_x = 0;
-    else figure_min_x = -2;
+    else figure_min_x = -1;
 
     // x normalization, especially when rotating
     if (figure_x < figure_min_x) figure_x = figure_min_x;
@@ -145,8 +158,8 @@ void rotate() {
     // if rotate is not possible
     setMaxXY();
     for (int y=0; y<4; y++) {
-        for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@' && (field_clear[figure_y+y][figure_x+x] == figure_glyph || figure_y+y>Y-1)) {
+        for (int x=0; x<4; x++) {
+            if (getFigure(figure)[x+y*4] == '@' && (figure_y+y>Y-1 || field_clear[figure_y+y][figure_x+x] == figure_glyph_a)) {
                 figure = figure_heap;
                 figure_x = figure_x_heap;
                 figure_y = figure_y_heap;
@@ -161,8 +174,8 @@ void move(int direction) {
     if (figure_x + direction < figure_min_x || figure_x + direction > figure_max_x) return;
 
     for (int y=0; y<4; y++) {
-        for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@' && (field_clear[figure_y+y][figure_x+x+direction] == figure_glyph)) {
+        for (int x=0; x<4; x++) {
+            if (getFigure(figure)[x+y*4] == '@' && (field_clear[figure_y+y][figure_x+x+direction] == figure_glyph_a)) {
                 return;
             }
         }
@@ -176,8 +189,8 @@ void checkCollision() {
     bool clip = false;
 
     for (int y=0; y<4; y++) {
-        for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@' && (figure_y+y == Y-1 || field_clear[figure_y+y+1][figure_x+x] == figure_glyph)) {
+        for (int x=0; x<4; x++) {
+            if (getFigure(figure)[x+y*4] == '@' && (figure_y+y == Y-1 || field_clear[figure_y+y+1][figure_x+x] == figure_glyph_a)) {
                 clip = true;
                 break;
             }
@@ -187,9 +200,9 @@ void checkCollision() {
     if (!clip) return;
 
     for (int y=0; y<4; y++) {
-        for (int x=0; x<7; x++) {
-            if (getFigure(figure)[x+y*7] == '@') {
-                if (field_clear[figure_y+y][figure_x+x] == figure_glyph) {
+        for (int x=0; x<4; x++) {
+            if (getFigure(figure)[x+y*4] == '@') {
+                if (field_clear[figure_y+y][figure_x+x] == figure_glyph_a) {
                     system("clear");
                     coutField();
 
@@ -198,16 +211,15 @@ void checkCollision() {
                     exit(0);
                 }
 
-                field_clear[figure_y+y][figure_x+x] = figure_glyph;
-                field[figure_y+y][figure_x+x] = figure_glyph;
+                field_clear[figure_y+y][figure_x+x] = figure_glyph_a;
+                field[figure_y+y][figure_x+x] = figure_glyph_a;
 
                 field_colors_clear[figure_y*X + y*X + figure_x + x] = figure_color;
             }
         }
     }
     
-    figure_x = (X+1)/2 - 4;
-    if (figure_x%2 != 0) figure_x++;
+    figure_x = X/2 - 2;
 
     figure_y = 0;
 
@@ -217,7 +229,7 @@ void checkCollision() {
     figure_next = figures_id[figure_next];
 
     figure_color = figure_next_color;
-    figure_next_color = rand() % 7;
+    figure_next_color = 1 + rand() % (sizeof(colors) / sizeof(colors[0]) - 1);
 }
 
 void checkLines() {
@@ -245,11 +257,11 @@ void updateBoard() {
     setFigure();
     coutField();
 
-    cout << "\r\n";
     // debug
-    // cout << "input: " << input << " x,y: " << figure_y << ", " << figure_x << "\r\n";
+    // cout << " x,y: " << figure_x << ", " << figure_y << "\r\n";
     // cout << "figure: " << figure << "\r\n";
-    // cout << "ticks: " << ticks;
+    // cout << "ticks: " << ticks << " colors: " << sizeof(colors) / sizeof(colors[0]);
+    cout << "\r\n";
 }
 
 bool block = false;
@@ -285,8 +297,8 @@ void gameLoop() {
             if (ticks%10==0) score += 1;
         }
 
-        if (input == 97) move(-2); // a
-        if (input == 100) move(2); // d
+        if (input == 97) move(-1); // a
+        if (input == 100) move(1); // d
         if (input == 32) rotate(); // space
 
         updateBoard();
@@ -300,8 +312,10 @@ int main() {
     // generate lines
     for (int x=0; x<X; x++) {
         clear_line += " ";
-        full_line += (x%2==0) ? &figure_glyph : " ";
-        lower_border += "-";
+        full_line += figure_glyph_a;
+
+        if (x == X-1 && figure_glyph_b == ' ') lower_border += "-";
+        else lower_border += "--";
     }
     
     // generate fields
