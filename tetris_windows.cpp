@@ -36,6 +36,8 @@ int figure_next_color = 2;
 const char figure_glyph_a = '['; // any ascii symbol
 const char figure_glyph_b = ']'; // can be ' ' for falfline mode
 
+int fst = figure_glyph_b == ' ' ? 0 : 1;
+
 string clear_line = "";
 string full_line = "";
 wstring lower_border = L" ";
@@ -46,7 +48,7 @@ DWORD dwBytesWritten = 0;
 
 
 WORD colors[7] = { // standard theme
-    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
+    0x0000,
     FOREGROUND_RED,
     FOREGROUND_GREEN,
     FOREGROUND_RED | FOREGROUND_GREEN,
@@ -56,7 +58,7 @@ WORD colors[7] = { // standard theme
 }; //*/
 
 /*WORD colors[7] = { // solid theme
-    BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE,
+    0x0000,
     BACKGROUND_RED, 
     BACKGROUND_GREEN,
     BACKGROUND_RED | BACKGROUND_GREEN, 
@@ -112,16 +114,14 @@ void coutField() {
         screen += L"|";
         for (int x = 0; x < X; x++) {
             screen += field[y][x];
-            WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short)(x * 2 + 1), (short)(y - 1) }, &dwBytesWritten);
-            WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short)(x * 2 + 2), (short)(y - 1) }, &dwBytesWritten);
-
-            if (x == X - 1 && figure_glyph_b == ' ') break;
-
+            WriteConsoleOutputAttribute(hConsole, &(colors[field_colors[y * X + x]]), 1, { (short) (x*2 + 1), (short) (y-1) }, &dwBytesWritten);
+            
+            if (x == X-1 && figure_glyph_b == ' ') break;
+ 
+            WriteConsoleOutputAttribute(hConsole, &(colors[field_colors[y * X + x]]), 1, { (short) (x*2 + 2), (short) (y-1) }, &dwBytesWritten);
             if (field[y][x] == ' ') screen += ' ';
             else {
                 screen += figure_glyph_b;
-                WriteConsoleOutputAttribute(hConsole, &(colors[field_colors[y * X + x]]), 1, { (short) (x*2 + 1), (short) (y-1) }, &dwBytesWritten);
-                WriteConsoleOutputAttribute(hConsole, &(colors[field_colors[y * X + x]]), 1, { (short) (x*2 + 2), (short) (y-1) }, &dwBytesWritten);
             }
         }
         screen += L"|";
@@ -131,12 +131,12 @@ void coutField() {
         if (y > 1 && y < 5) {
             screen += L"   ";
             for (int x = 0; x < 4; x++) {
-                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 5), (short) (y - 1) }, &dwBytesWritten);
-                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 6), (short) (y - 1) }, &dwBytesWritten);
+                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 4 + fst), (short) (y - 1) }, &dwBytesWritten);
+                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 5 + fst), (short) (y - 1) }, &dwBytesWritten);
                 if (fig[(y - 2) * 4 + x] == '.') screen += L"  ";
                 else { 
-                    WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 5), (short) (y - 1) }, &dwBytesWritten);
-                    WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 6), (short) (y - 1) }, &dwBytesWritten);
+                    WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 4 + fst), (short) (y - 1) }, &dwBytesWritten);
+                    WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 5 + fst), (short) (y - 1) }, &dwBytesWritten);
 
                     screen += figure_glyph_a; 
                     screen += figure_glyph_b; 
@@ -153,7 +153,7 @@ void coutField() {
     screen += lower_border;
     screen += L"\n ";
 
-    // display Map
+    // display map
     int y = 0;
     int x = 0;
     for (int i = 0; i < screen.length() - 1; i++) {
@@ -256,7 +256,7 @@ void checkCollision() {
         for (int x = 0; x < 4; x++) {
             if (getFigure(figure)[x + y * 4] == '@') {
                 if (field_clear[figure_y + y][figure_x + x] == figure_glyph_a) {
-                    for (int i = 0; i < 14; i++) screen_buffer[(Y - 1) * ScreenX + X * 2 + 3 + i] = L"Игра окончена"[i];
+                    for (int i = 0; i < 14; i++) screen_buffer[(Y - 1) * ScreenX + X * 2 + 2 + fst + i] = L"Игра окончена"[i];
 
                     coutField();
                     exit(0);
@@ -351,9 +351,9 @@ void gameLoop() {
 
 int main() {
     setlocale(LC_ALL, "Russian");
-    SetConsoleActiveScreenBuffer(hConsole);
-
+    
     // set clear buffer
+    SetConsoleActiveScreenBuffer(hConsole);
     for (int i = 0; i < ScreenX * ScreenY; i++) screen_buffer[i] = ' ';
 
     // generate lines
