@@ -11,18 +11,21 @@
 using namespace std;
 mutex mlock;
 
+int ScreenX = 120; // windows console dimensions
+int ScreenY = 40;
+
 int score = 0;
 int lines = 0;
 int ticks = 0;
 
-int figure_x = 4;
+const int X = 10; // field length
+const int Y = 20 + 1; // field heigth
+
+int figure_x = X/2 - 2;
 int figure_y = 0;
 
 int figure_max_x = 22;
 int figure_min_x = -2;
-
-const int X = 19; // field length
-const int Y = 21; // field heigth
 
 int figure = 15;
 int figure_next = 1;
@@ -30,14 +33,37 @@ int figure_next = 1;
 int figure_color = 4;
 int figure_next_color = 2;
 
-const char figure_glyph = '@';
+const char figure_glyph_a = '['; // any ascii symbol
+const char figure_glyph_b = ']'; // can be ' ' for falfline mode
 
 string clear_line = "";
 string full_line = "";
-string lower_border = " ";
+wstring lower_border = L" ";
 
-//                   White      Red         Green       Yellow      Blue        Magenta     Cyan
-string colors[7] = { "\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m" };
+wchar_t* screen_buffer = new wchar_t[ScreenX * ScreenY];
+HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+DWORD dwBytesWritten = 0;
+
+
+WORD colors[7] = { // standard theme
+    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
+    FOREGROUND_RED,
+    FOREGROUND_GREEN,
+    FOREGROUND_RED | FOREGROUND_GREEN,
+    FOREGROUND_BLUE,
+    FOREGROUND_RED | FOREGROUND_BLUE,
+    FOREGROUND_GREEN | FOREGROUND_BLUE
+}; //*/
+
+/*WORD colors[7] = { // solid theme
+    BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE,
+    BACKGROUND_RED, 
+    BACKGROUND_GREEN,
+    BACKGROUND_RED | BACKGROUND_GREEN, 
+    BACKGROUND_BLUE, 
+    BACKGROUND_RED | BACKGROUND_BLUE, 
+    BACKGROUND_GREEN | BACKGROUND_BLUE,
+}; //*/
 
 int field_colors[Y * X];
 int field_colors_clear[Y * X];
@@ -45,68 +71,98 @@ int field_colors_clear[Y * X];
 string field[Y];
 string field_clear[Y];
 
-// like system("cls") but faster
-void setCursorPosition(int x, int y) {
-    static const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD coord = { (SHORT)x, (SHORT)y };
-    SetConsoleCursorPosition(hOut, coord);
-}
-
 string getFigure(int figure) {
     unordered_map <int, string> figures;
-    figures[0] = "         @ @    @ @         "; // O
+    figures[0] = ".....@@..@@....."; // O
 
-    figures[1] = "       @ @ @ @              "; // I
-    figures[2] = ". . @ .. . @ .. . @ .. . @ .";
+    figures[1] = "....@@@@........"; // I
+    figures[2] = "..@...@...@...@.";
 
-    figures[3] = "           @ @  @ @         "; // S
-    figures[4] = ". . @ .. . @ @. . . @. . . .";
+    figures[3] = "......@@.@@....."; // S
+    figures[4] = "..@...@@...@....";
 
-    figures[5] = "         @ @      @ @       "; // Z
-    figures[6] = ". . . @. . @ @. . @ .. . . .";
+    figures[5] = ".....@@...@@...."; // Z
+    figures[6] = "...@..@@..@.....";
 
-    figures[7] = "         @ @ @  @           "; // L
-    figures[8] = ". . @ .. . @ .. . @ @. . . .";
-    figures[9] = ". . . @. @ @ @. . . .. . . .";
-    figures[10] = ". @ @ .. . @ .. . @ .. . . .";
+    figures[7] = ".....@@@.@......"; // L
+    figures[8] = "..@...@...@@....";
+    figures[9] = "...@.@@@........";
+    figures[10] = ".@@...@...@.....";
 
-    figures[11] = "         @ @ @      @       "; // J
-    figures[12] = ". . @ @. . @ .. . @ .. . . .";
-    figures[13] = ". @ . .. @ @ @. . . .. . . .";
-    figures[14] = ". . @ .. . @ .. @ @ .. . . .";
+    figures[11] = ".....@@@...@...."; // J
+    figures[12] = "..@@..@...@.....";
+    figures[13] = ".@...@@@........";
+    figures[14] = "..@...@..@@.....";
 
-    figures[15] = "         @ @ @    @         "; // T
-    figures[16] = ". . @ .. . @ @. . @ .. . . .";
-    figures[17] = ". . @ .. @ @ @. . . .. . . .";
-    figures[18] = ". . @ .. @ @ .. . @ .. . . .";
+    figures[15] = ".....@@@..@....."; // T
+    figures[16] = "..@...@@..@.....";
+    figures[17] = "..@..@@@........";
+    figures[18] = "..@..@@...@.....";
 
     return figures[figure];
 }
 
 void coutField() {
-    string screen = "";
-
+    wstring screen = L"";
     string fig = getFigure(figure_next);
-    replace(fig.begin(), fig.end(), '@', figure_glyph);
+    WORD clear = 0X0000;
 
     for (int y = 1; y < Y; y++) {
         // field
-        screen += "\033[0m|";
-        for (int x = 0; x < X; x++) screen += colors[field_colors[y * X + x]] + field[y][x];
-        screen += "\033[0m|";
+        screen += L"|";
+        for (int x = 0; x < X; x++) {
+            screen += field[y][x];
+            WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short)(x * 2 + 1), (short)(y - 1) }, &dwBytesWritten);
+            WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short)(x * 2 + 2), (short)(y - 1) }, &dwBytesWritten);
+
+            if (x == X - 1 && figure_glyph_b == ' ') break;
+
+            if (field[y][x] == ' ') screen += ' ';
+            else {
+                screen += figure_glyph_b;
+                WriteConsoleOutputAttribute(hConsole, &(colors[field_colors[y * X + x]]), 1, { (short) (x*2 + 1), (short) (y-1) }, &dwBytesWritten);
+                WriteConsoleOutputAttribute(hConsole, &(colors[field_colors[y * X + x]]), 1, { (short) (x*2 + 2), (short) (y-1) }, &dwBytesWritten);
+            }
+        }
+        screen += L"|";
 
         // next figure
-        if (y == 1) screen += " Следующая фигура: ";
-        if (y > 1 && y < 5) screen += "   " + colors[figure_next_color] + fig.substr((y - 2) * 7, 7);
+        if (y == 1) screen += L" Следующая фигура: ";
+        if (y > 1 && y < 5) {
+            screen += L"   ";
+            for (int x = 0; x < 4; x++) {
+                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 5), (short) (y - 1) }, &dwBytesWritten);
+                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 6), (short) (y - 1) }, &dwBytesWritten);
+                if (fig[(y - 2) * 4 + x] == '.') screen += L"  ";
+                else { 
+                    WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 5), (short) (y - 1) }, &dwBytesWritten);
+                    WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 6), (short) (y - 1) }, &dwBytesWritten);
 
-        if (y == 19) screen += " Линий: " + to_string(lines);
-        if (y == 20) screen += " Счёт: " + to_string(score);
+                    screen += figure_glyph_a; 
+                    screen += figure_glyph_b; 
+                }
+            }
+        }
 
-        screen += "\r\n";
+        if (y == 19) screen += L" Линий: " + to_wstring(lines);
+        if (y == 20) screen += L" Счёт: " + to_wstring(score);
+
+        screen += L"\n";
     }
 
     screen += lower_border;
-    cout << screen;
+    screen += L"\n ";
+
+    // display Map
+    int y = 0;
+    int x = 0;
+    for (int i = 0; i < screen.length() - 1; i++) {
+        if (screen[i] == '\n') { y++; x = 0; }
+        else { screen_buffer[ScreenX*y + x] = screen[i]; x++; }
+    }
+
+    screen_buffer[ScreenX * ScreenY - 1] = '\0';
+    WriteConsoleOutputCharacter(hConsole, screen_buffer, ScreenX * ScreenY, { 0,0 }, &dwBytesWritten);
 }
 
 void setFigure() {
@@ -119,9 +175,9 @@ void setFigure() {
     }
 
     for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 7; x++) {
-            if (getFigure(figure)[x + y * 7] == '@') {
-                field[figure_y + y][figure_x + x] = figure_glyph;
+        for (int x = 0; x < 4; x++) {
+            if (getFigure(figure)[x + y * 4] == '@') {
+                field[figure_y + y][figure_x + x] = figure_glyph_a;
                 field_colors[figure_y * X + y * X + figure_x + x] = figure_color;
             }
         }
@@ -130,13 +186,13 @@ void setFigure() {
 
 void setMaxXY() {
     // max
-    if (figure == 0 || figure == 2 || figure == 10 || figure == 14 || figure == 18) figure_max_x = X - 5;
-    else figure_max_x = X - 7;
+    if (figure == 0 || figure == 2 || figure == 10 || figure == 14 || figure == 18) figure_max_x = X - 3;
+    else figure_max_x = X - 4;
 
     // min
-    if (figure == 2 || figure == 4 || figure == 6 || figure == 8 || figure == 12 || figure == 16) figure_min_x = -4;
+    if (figure == 2 || figure == 4 || figure == 6 || figure == 8 || figure == 12 || figure == 16) figure_min_x = -2;
     else if (figure == 1) figure_min_x = 0;
-    else figure_min_x = -2;
+    else figure_min_x = -1;
 
     // x normalization, especially when rotating
     if (figure_x < figure_min_x) figure_x = figure_min_x;
@@ -155,8 +211,8 @@ void rotate() {
     // if rotate is not possible
     setMaxXY();
     for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 7; x++) {
-            if (getFigure(figure)[x + y * 7] == '@' && (field_clear[figure_y + y][figure_x + x] == figure_glyph || figure_y + y > Y - 1)) {
+        for (int x = 0; x < 4; x++) {
+            if (getFigure(figure)[x + y * 4] == '@' && (figure_y + y > Y - 1 || field_clear[figure_y + y][figure_x + x] == figure_glyph_a)) {
                 figure = figure_heap;
                 figure_x = figure_x_heap;
                 figure_y = figure_y_heap;
@@ -171,8 +227,8 @@ void move(int direction) {
     if (figure_x + direction < figure_min_x || figure_x + direction > figure_max_x) return;
 
     for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 7; x++) {
-            if (getFigure(figure)[x + y * 7] == '@' && (field_clear[figure_y + y][figure_x + x + direction] == figure_glyph)) {
+        for (int x = 0; x < 4; x++) {
+            if (getFigure(figure)[x + y * 4] == '@' && (field_clear[figure_y + y][figure_x + x + direction] == figure_glyph_a)) {
                 return;
             }
         }
@@ -186,8 +242,8 @@ void checkCollision() {
     bool clip = false;
 
     for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 7; x++) {
-            if (getFigure(figure)[x + y * 7] == '@' && (figure_y + y == Y - 1 || field_clear[figure_y + y + 1][figure_x + x] == figure_glyph)) {
+        for (int x = 0; x < 4; x++) {
+            if (getFigure(figure)[x + y * 4] == '@' && (figure_y + y == Y - 1 || field_clear[figure_y + y + 1][figure_x + x] == figure_glyph_a)) {
                 clip = true;
                 break;
             }
@@ -197,27 +253,24 @@ void checkCollision() {
     if (!clip) return;
 
     for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 7; x++) {
-            if (getFigure(figure)[x + y * 7] == '@') {
-                if (field_clear[figure_y + y][figure_x + x] == figure_glyph) {
-                    setCursorPosition(0, 0);
-                    coutField();
+        for (int x = 0; x < 4; x++) {
+            if (getFigure(figure)[x + y * 4] == '@') {
+                if (field_clear[figure_y + y][figure_x + x] == figure_glyph_a) {
+                    for (int i = 0; i < 14; i++) screen_buffer[(Y - 1) * ScreenX + X * 2 + 3 + i] = L"Игра окончена"[i];
 
-                    cout << "  Игра окончена\r\n";
+                    coutField();
                     exit(0);
                 }
 
-                field_clear[figure_y + y][figure_x + x] = figure_glyph;
-                field[figure_y + y][figure_x + x] = figure_glyph;
+                field_clear[figure_y + y][figure_x + x] = figure_glyph_a;
+                field[figure_y + y][figure_x + x] = figure_glyph_a;
 
                 field_colors_clear[figure_y * X + y * X + figure_x + x] = figure_color;
             }
         }
     }
 
-    figure_x = (X + 1) / 2 - 4;
-    if (figure_x % 2 != 0) figure_x++;
-
+    figure_x = X / 2 - 2;
     figure_y = 0;
 
     figure = figure_next;
@@ -226,7 +279,7 @@ void checkCollision() {
     figure_next = figures_id[figure_next];
 
     figure_color = figure_next_color;
-    figure_next_color = rand() % 7;
+    figure_next_color = 1 + rand() % (sizeof(colors) / sizeof(colors[0]) - 1);
 }
 
 void checkLines() {
@@ -248,17 +301,10 @@ void checkLines() {
 }
 
 void updateBoard() {
-    setCursorPosition(0, 0);
     setMaxXY();
     checkLines();
     setFigure();
     coutField();
-
-    cout << "\r\n";
-    // debug
-    // cout << "input: " << input << " x,y: " << figure_y << ", " << figure_x << "\r\n";
-    // cout << "figure: " << figure << "\r\n";
-    // cout << "ticks: " << ticks;
 }
 
 bool block = false;
@@ -294,8 +340,8 @@ void gameLoop() {
             if (ticks % 10 == 0) score += 1;
         }
 
-        if (input == 97) move(-2); // a
-        if (input == 100) move(2); // d
+        if (input == 97) move(-1); // a
+        if (input == 100) move(1); // d
         if (input == 32) rotate(); // space
 
         updateBoard();
@@ -305,12 +351,18 @@ void gameLoop() {
 
 int main() {
     setlocale(LC_ALL, "Russian");
+    SetConsoleActiveScreenBuffer(hConsole);
+
+    // set clear buffer
+    for (int i = 0; i < ScreenX * ScreenY; i++) screen_buffer[i] = ' ';
 
     // generate lines
     for (int x = 0; x < X; x++) {
         clear_line += " ";
-        full_line += (x % 2 == 0) ? &figure_glyph : " ";
-        lower_border += "-";
+        full_line += figure_glyph_a;
+
+        if (x == X - 1 && figure_glyph_b == ' ') lower_border += L"-";
+        else lower_border += L"--";
     }
 
     // generate fields
