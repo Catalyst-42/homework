@@ -35,8 +35,8 @@ string full_line = "";
 string lower_border = " ";
 
 //                  White      Red         Green       Yellow      Blue        Magenta     Cyan
-string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"};  // standard theme
-// string colors[7] = {"\033[0;49m", "\033[31;41m", "\033[32;42m", "\033[33;43m", "\033[34;44m", "\033[35;45m", "\033[36;46m"}; // solid theme
+// string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"}; // standard theme
+string colors[7] = {"\033[0;49m", "\033[31;41m", "\033[32;42m", "\033[33;43m", "\033[34;44m", "\033[35;45m", "\033[36;46m"}; // solid theme
 
 int field_colors[Y*X];
 int field_colors_clear[Y*X];
@@ -185,7 +185,7 @@ void move(int direction) {
 }
 
 void checkCollision() {
-    int figures_id[6] = {0, 1, 3, 5, 11, 15};
+    int figures_id[7] = {0, 1, 3, 5, 7, 11, 15};
     bool clip = false;
 
     for (int y=0; y<4; y++) {
@@ -225,7 +225,7 @@ void checkCollision() {
 
     figure = figure_next;
 
-    figure_next = rand() % 6;
+    figure_next = rand() % 7;
     figure_next = figures_id[figure_next];
 
     figure_color = figure_next_color;
@@ -311,10 +311,10 @@ int main() {
 
     // generate lines
     for (int x=0; x<X; x++) {
-        clear_line += " ";
+        clear_line += ' ';
         full_line += figure_glyph_a;
 
-        if (x == X-1 && figure_glyph_b == ' ') lower_border += "-";
+        if (x == X-1 && figure_glyph_b == ' ') lower_border += '-';
         else lower_border += "--";
     }
     
