@@ -35,8 +35,8 @@ string full_line = "";
 string lower_border = " ";
 
 //                  White      Red         Green       Yellow      Blue        Magenta     Cyan
-// string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"}; // standard theme
-string colors[7] = {"\033[0;49m", "\033[31;41m", "\033[32;42m", "\033[33;43m", "\033[34;44m", "\033[35;45m", "\033[36;46m"}; // solid theme
+string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"}; // standard theme
+// string colors[7] = {"\033[0;49m", "\033[31;41m", "\033[32;42m", "\033[33;43m", "\033[34;44m", "\033[35;45m", "\033[36;46m"}; // solid theme
 
 int field_colors[Y*X];
 int field_colors_clear[Y*X];
