@@ -46,7 +46,6 @@ wchar_t* screen_buffer = new wchar_t[ScreenX * ScreenY];
 HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 DWORD dwBytesWritten = 0;
 
-
 WORD colors[7] = { // standard theme
     0x0000,
     FOREGROUND_RED,
@@ -107,7 +106,6 @@ string getFigure(int figure) {
 void coutField() {
     wstring screen = L"";
     string fig = getFigure(figure_next);
-    WORD clear = 0X0000;
 
     for (int y = 1; y < Y; y++) {
         // field
@@ -131,8 +129,8 @@ void coutField() {
         if (y > 1 && y < 5) {
             screen += L"   ";
             for (int x = 0; x < 4; x++) {
-                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 4 + fst), (short) (y - 1) }, &dwBytesWritten);
-                WriteConsoleOutputAttribute(hConsole, &clear, 1, { (short) ((x + X) * 2 + 5 + fst), (short) (y - 1) }, &dwBytesWritten);
+                WriteConsoleOutputAttribute(hConsole, &colors[0], 1, { (short) ((x + X) * 2 + 4 + fst), (short) (y - 1) }, &dwBytesWritten);
+                WriteConsoleOutputAttribute(hConsole, &colors[0], 1, { (short) ((x + X) * 2 + 5 + fst), (short) (y - 1) }, &dwBytesWritten);
                 if (fig[(y - 2) * 4 + x] == '.') screen += L"  ";
                 else { 
                     WriteConsoleOutputAttribute(hConsole, &colors[figure_next_color], 1, { (short) ((x + X) * 2 + 4 + fst), (short) (y - 1) }, &dwBytesWritten);
@@ -238,7 +236,7 @@ void move(int direction) {
 }
 
 void checkCollision() {
-    int figures_id[6] = { 0, 1, 3, 5, 11, 15 };
+    int figures_id[7] = { 0, 1, 3, 5, 7, 11, 15 };
     bool clip = false;
 
     for (int y = 0; y < 4; y++) {
@@ -275,7 +273,7 @@ void checkCollision() {
 
     figure = figure_next;
 
-    figure_next = rand() % 6;
+    figure_next = rand() % 7;
     figure_next = figures_id[figure_next];
 
     figure_color = figure_next_color;
