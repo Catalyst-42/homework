@@ -24,7 +24,7 @@ int figure_min_x = -2;
 int figure = 15;
 int figure_next = 1;
 
-int figure_color = 4;
+int figure_color = 7;
 int figure_next_color = 2;
 
 const char figure_glyph_a = '['; // any ascii symbol
@@ -34,9 +34,9 @@ string clear_line = "";
 string full_line = "";
 string lower_border = " ";
 
-//                  White      Red         Green       Yellow      Blue        Magenta     Cyan
-string colors[7] = {"\033[0m", "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[35m", "\033[36m"}; // standard theme
-// string colors[7] = {"\033[0;49m", "\033[31;41m", "\033[32;42m", "\033[33;43m", "\033[34;44m", "\033[35;45m", "\033[36;46m"}; // solid theme
+//                  White      Yellow      Cyan        Green       Red         Orange            Blue        Magenta
+string colors[8] = {"\033[0m", "\033[33m", "\033[36m", "\033[32m", "\033[31m", "\033[38;5;208m", "\033[34m", "\033[35m"};
+// string colors[8] = {"\033[0;49m", "\033[33;43m", "\033[36;46m", "\033[32;42m", "\033[31;41m", "\033[48;5;208;38;5;208m", "\033[34;44m", "\033[35;45m"}; // solid theme
 
 int field_colors[Y*X];
 int field_colors_clear[Y*X];
@@ -224,12 +224,13 @@ void checkCollision() {
     figure_y = 0;
 
     figure = figure_next;
+    figure_color = figure_next_color;
 
     figure_next = rand() % 7;
-    figure_next = figures_id[figure_next];
+    figure_next_color = figure_next;
 
-    figure_color = figure_next_color;
-    figure_next_color = 1 + rand() % (sizeof(colors) / sizeof(colors[0]) - 1);
+    figure_next = figures_id[figure_next];
+    figure_next_color = figure_next_color + 1;
 }
 
 void checkLines() {
@@ -273,7 +274,7 @@ void yIncrease() {
         checkCollision();
         figure_y++;
         ticks++;
-        if (ticks%10==0) score += 1;
+        if (ticks % 10 == 0) score += 1;
 
         updateBoard();
         mlock.unlock();
@@ -294,7 +295,7 @@ void gameLoop() {
             checkCollision();
             figure_y++;
             ticks++;
-            if (ticks%10==0) score += 1;
+            if (ticks%10==0) score++;
         }
 
         if (input == 97) move(-1); // a
